@@ -30,6 +30,8 @@ pub fn main() !void {
     defer allocator.free(file_buffer);
 
     const request: plugin.CodeGeneratorRequest = try plugin.CodeGeneratorRequest.decode(file_buffer, allocator);
+    for (request.file_to_generate.items) |f| std.log.info("file_to_generate: {s}", .{f.getSlice()});
+    for (request.proto_file.items) |p| std.log.info("input_file: {s} @ {s}", .{ if (p.package) |pkg| pkg.getSlice() else "???", if (p.name) |name| name.getSlice() else "???" });
 
     var ctx: GenerationContext = GenerationContext{ .req = request };
 
@@ -77,7 +79,7 @@ const GenerationContext = struct {
 
             ret.name = pb.ManagedString.move(try self.fileNameFromPackage(entry.key_ptr.*), allocator);
             ret.content = pb.ManagedString.move(try std.mem.concat(allocator, u8, entry.value_ptr.*.items), allocator);
-
+            std.log.warn("mapped {s} to {s}", .{ entry.key_ptr.*, ret.name.?.getSlice() });
             try self.res.file.append(ret);
         }
 
