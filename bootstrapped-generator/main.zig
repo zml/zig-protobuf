@@ -68,7 +68,7 @@ const GenerationContext = struct {
         for (self.req.proto_file.items) |file| {
             const t: descriptor.FileDescriptorProto = file;
 
-            const name = FullName{ .buf = t.package.?.getSlice() };
+            const name = FullName{ .buf = t.name.?.getSlice() };
 
             try self.printFileDeclarations(name, file);
         }
@@ -87,18 +87,20 @@ const GenerationContext = struct {
     }
 
     fn fileNameFromPackage(self: *Self, package: string) !string {
-        return try std.fmt.allocPrint(allocator, "{?s}.pb.zig", .{try self.packageNameToOutputFileName(package)});
+        return try std.fmt.allocPrint(allocator, "{s}.pb.zig", .{try self.packageNameToOutputFileName(package)});
     }
 
-    fn packageNameToOutputFileName(_: *Self, n: string) !string {
-        var r: []u8 = try allocator.alloc(u8, n.len);
+    fn packageNameToOutputFileName(_: *Self, name: string) !string {
+        var r: []u8 = try allocator.alloc(u8, name.len);
+        var n = name;
+        if (std.mem.endsWith(u8, n, ".proto")) n = name[0 .. n.len - ".proto".len];
         for (n, 0..) |byte, i| {
             r[i] = switch (byte) {
-                '.', '/', '\\' => '/',
+                '/', '\\' => '/',
                 else => byte,
             };
         }
-        return r;
+        return r[0..n.len];
     }
 
     fn getOutputList(self: *Self, name: FullName) !*std.ArrayList([]const u8) {
