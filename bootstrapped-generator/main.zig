@@ -11,7 +11,17 @@ const allocator = std.heap.page_allocator;
 const string = []const u8;
 
 pub fn main() !void {
-    const stdin = &std.io.getStdIn();
+    const args = try std.process.argsAlloc(allocator);
+    for (args, 0..) |a, i| {
+        if (i > 0) std.log.warn("Will open: {s}", .{a});
+    }
+    const stdin, const stdout = if (args.len < 3) .{
+        std.io.getStdIn(),
+        std.io.getStdOut(),
+    } else .{
+        try std.fs.cwd().openFile(args[1], .{ .mode = .read_only }),
+        try std.fs.cwd().createFile(args[2], .{ .truncate = true }),
+    };
 
     // Read the contents (up to 10MB)
     const buffer_size = 1024 * 1024 * 10;
@@ -25,7 +35,6 @@ pub fn main() !void {
 
     try ctx.processRequest();
 
-    const stdout = &std.io.getStdOut();
     const r = try ctx.res.encode(allocator);
     _ = try stdout.write(r);
 }
