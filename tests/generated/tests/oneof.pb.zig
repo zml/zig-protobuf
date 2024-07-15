@@ -30,15 +30,7 @@ pub const Message = struct {
 pub const OneofContainer = struct {
     regular_field: ManagedString = .Empty,
     enum_field: Enum = @enumFromInt(0),
-    some_oneof: ?some_oneof_union,
-
-    pub const _some_oneof_case = enum {
-        string_in_oneof,
-        message_in_oneof,
-        a_number,
-        enum_value,
-    };
-    pub const some_oneof_union = union(_some_oneof_case) {
+    some_oneof: ?union(enum) {
         string_in_oneof: ManagedString,
         message_in_oneof: Message,
         a_number: i32,
@@ -49,12 +41,50 @@ pub const OneofContainer = struct {
             .a_number = fd(3, .{ .Varint = .Simple }),
             .enum_value = fd(6, .{ .Varint = .Simple }),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .regular_field = fd(4, .String),
         .enum_field = fd(5, .{ .Varint = .Simple }),
-        .some_oneof = fd(null, .{ .OneOf = some_oneof_union }),
+        .some_oneof = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .some_oneof)) }),
+    };
+
+    pub usingnamespace protobuf.MessageMixins(@This());
+};
+
+pub const NestedOneofContainer = struct {
+    failure: ?AnotherContainer = null,
+    key: ?union(enum) {
+        a: ManagedString,
+        b: i64,
+        pub const _union_desc = .{
+            .a = fd(5, .String),
+            .b = fd(6, .{ .Varint = .Simple }),
+        };
+    },
+
+    pub const _desc_table = .{
+        .failure = fd(7, .{ .SubMessage = {} }),
+        .key = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .key)) }),
+    };
+
+    pub const AnotherContainer = struct {
+        buffer_address: i64 = 0,
+        key: ?union(enum) {
+            a: ManagedString,
+            b: i64,
+            pub const _union_desc = .{
+                .a = fd(11, .String),
+                .b = fd(12, .{ .Varint = .Simple }),
+            };
+        },
+
+        pub const _desc_table = .{
+            .buffer_address = fd(13, .{ .Varint = .Simple }),
+            .key = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .key)) }),
+        };
+
+        pub usingnamespace protobuf.MessageMixins(@This());
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

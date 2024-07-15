@@ -475,36 +475,7 @@ const GenerationContext = struct {
                 const union_element_count = ctx.amountOfElementsInOneofUnion(m, @as(i32, @intCast(i)));
                 if (union_element_count > 1) {
                     const oneof_name = oneof.name.?.getSlice();
-                    try list.append(try std.fmt.allocPrint(allocator, "    {s}: ?{s}_union,\n", .{ try escapeName(oneof_name), oneof_name }));
-                }
-            }
-
-            // then print the oneof declarations
-            for (m.oneof_decl.items, 0..) |oneof, i| {
-                // only emit unions that have more than one element
-                const union_element_count = ctx.amountOfElementsInOneofUnion(m, @as(i32, @intCast(i)));
-                if (union_element_count > 1) {
-                    const oneof_name = oneof.name.?.getSlice();
-
-                    try list.append(try std.fmt.allocPrint(allocator,
-                        \\
-                        \\    pub const _{s}_case = enum {{
-                        \\
-                    , .{oneof_name}));
-
-                    for (m.field.items) |field| {
-                        const f: descriptor.FieldDescriptorProto = field;
-                        if (f.oneof_index orelse -1 == @as(i32, @intCast(i))) {
-                            const name = try ctx.getFieldName(f);
-                            try list.append(try std.fmt.allocPrint(allocator, "      {?s},\n", .{name}));
-                        }
-                    }
-
-                    try list.append(try std.fmt.allocPrint(allocator,
-                        \\    }};
-                        \\    pub const {s}_union = union(_{s}_case) {{
-                        \\
-                    , .{ oneof_name, oneof_name }));
+                    try list.append(try std.fmt.allocPrint(allocator, "    {s}: ?union(enum) {{\n", .{try escapeName(oneof_name)}));
 
                     for (m.field.items) |field| {
                         const f: descriptor.FieldDescriptorProto = field;
@@ -529,7 +500,7 @@ const GenerationContext = struct {
 
                     try list.append(
                         \\      };
-                        \\    };
+                        \\    },
                         \\
                     );
                 }
@@ -555,7 +526,7 @@ const GenerationContext = struct {
                 const union_element_count = ctx.amountOfElementsInOneofUnion(m, @as(i32, @intCast(i)));
                 if (union_element_count > 1) {
                     const oneof_name = oneof.name.?.getSlice();
-                    try list.append(try std.fmt.allocPrint(allocator, "    .{s} = fd(null, .{{ .OneOf = {s}_union }}),\n", .{ oneof_name, oneof_name }));
+                    try list.append(try std.fmt.allocPrint(allocator, "    .{s} = fd(null, .{{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .{s})) }}),\n", .{ oneof_name, oneof_name }));
                 }
             }
 

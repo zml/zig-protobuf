@@ -371,25 +371,19 @@ pub const Texture = struct {
 pub const Graphic = struct {
     id: i32 = 0,
     name: ManagedString = .Empty,
-    type: ?type_union,
-
-    pub const _type_case = enum {
-        sprite,
-        animation,
-    };
-    pub const type_union = union(_type_case) {
+    type: ?union(enum) {
         sprite: Sprite,
         animation: Animation,
         pub const _union_desc = .{
             .sprite = fd(2, .{ .SubMessage = {} }),
             .animation = fd(3, .{ .SubMessage = {} }),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .id = fd(1, .{ .Varint = .Simple }),
         .name = fd(4, .String),
-        .type = fd(null, .{ .OneOf = type_union }),
+        .type = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .type)) }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

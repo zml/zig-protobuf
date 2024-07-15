@@ -211,15 +211,7 @@ pub const TestAllTypes = struct {
     default_foreign_enum: ?ForeignEnum = .FOREIGN_BAR,
     default_string_piece: ?ManagedString = ManagedString.static("abc"),
     default_cord: ?ManagedString = ManagedString.static("123"),
-    oneof_field: ?oneof_field_union,
-
-    pub const _oneof_field_case = enum {
-        oneof_uint32,
-        oneof_nested_message,
-        oneof_string,
-        oneof_bytes,
-    };
-    pub const oneof_field_union = union(_oneof_field_case) {
+    oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_nested_message: NestedMessage,
         oneof_string: ManagedString,
@@ -230,7 +222,7 @@ pub const TestAllTypes = struct {
             .oneof_string = fd(113, .String),
             .oneof_bytes = fd(114, .String),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .optional_int32 = fd(1, .{ .Varint = .Simple }),
@@ -298,7 +290,7 @@ pub const TestAllTypes = struct {
         .default_foreign_enum = fd(82, .{ .Varint = .Simple }),
         .default_string_piece = fd(84, .String),
         .default_cord = fd(85, .String),
-        .oneof_field = fd(null, .{ .OneOf = oneof_field_union }),
+        .oneof_field = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .oneof_field)) }),
     };
 
     pub const NestedEnum = enum(i32) {
@@ -1135,16 +1127,7 @@ pub const BoolMessage = struct {
 };
 
 pub const TestOneof = struct {
-    foo: ?foo_union,
-
-    pub const _foo_case = enum {
-        foo_int,
-        foo_string,
-        foo_message,
-        a,
-        b,
-    };
-    pub const foo_union = union(_foo_case) {
+    foo: ?union(enum) {
         foo_int: i32,
         foo_string: ManagedString,
         foo_message: TestAllTypes,
@@ -1157,10 +1140,10 @@ pub const TestOneof = struct {
             .a = fd(5, .{ .Varint = .Simple }),
             .b = fd(6, .String),
         };
-    };
+    },
 
     pub const _desc_table = .{
-        .foo = fd(null, .{ .OneOf = foo_union }),
+        .foo = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .foo)) }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -1187,22 +1170,7 @@ pub const TestOneofBackwardsCompatible = struct {
 pub const TestOneof2 = struct {
     baz_int: ?i32 = null,
     baz_string: ?ManagedString = ManagedString.static("BAZ"),
-    foo: ?foo_union,
-    bar: ?bar_union,
-
-    pub const _foo_case = enum {
-        foo_int,
-        foo_string,
-        foo_cord,
-        foo_string_piece,
-        foo_bytes,
-        foo_enum,
-        foo_message,
-        a,
-        b,
-        foo_lazy_message,
-    };
-    pub const foo_union = union(_foo_case) {
+    foo: ?union(enum) {
         foo_int: i32,
         foo_string: ManagedString,
         foo_cord: ManagedString,
@@ -1225,21 +1193,8 @@ pub const TestOneof2 = struct {
             .b = fd(10, .String),
             .foo_lazy_message = fd(11, .{ .SubMessage = {} }),
         };
-    };
-
-    pub const _bar_case = enum {
-        bar_int,
-        bar_string,
-        bar_cord,
-        bar_string_piece,
-        bar_bytes,
-        bar_enum,
-        bar_string_with_empty_default,
-        bar_cord_with_empty_default,
-        bar_string_piece_with_empty_default,
-        bar_bytes_with_empty_default,
-    };
-    pub const bar_union = union(_bar_case) {
+    },
+    bar: ?union(enum) {
         bar_int: i32,
         bar_string: ManagedString,
         bar_cord: ManagedString,
@@ -1262,13 +1217,13 @@ pub const TestOneof2 = struct {
             .bar_string_piece_with_empty_default = fd(22, .String),
             .bar_bytes_with_empty_default = fd(23, .String),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .baz_int = fd(18, .{ .Varint = .Simple }),
         .baz_string = fd(19, .String),
-        .foo = fd(null, .{ .OneOf = foo_union }),
-        .bar = fd(null, .{ .OneOf = bar_union }),
+        .foo = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .foo)) }),
+        .bar = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .bar)) }),
     };
 
     pub const NestedEnum = enum(i32) {
@@ -1294,14 +1249,7 @@ pub const TestOneof2 = struct {
 };
 
 pub const TestRequiredOneof = struct {
-    foo: ?foo_union,
-
-    pub const _foo_case = enum {
-        foo_int,
-        foo_string,
-        foo_message,
-    };
-    pub const foo_union = union(_foo_case) {
+    foo: ?union(enum) {
         foo_int: i32,
         foo_string: ManagedString,
         foo_message: NestedMessage,
@@ -1310,10 +1258,10 @@ pub const TestRequiredOneof = struct {
             .foo_string = fd(2, .String),
             .foo_message = fd(3, .{ .SubMessage = {} }),
         };
-    };
+    },
 
     pub const _desc_table = .{
-        .foo = fd(null, .{ .OneOf = foo_union }),
+        .foo = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .foo)) }),
     };
 
     pub const NestedMessage = struct {
@@ -1621,15 +1569,7 @@ pub const TestHugeFieldNumbers = struct {
     optional_message: ?ForeignMessage = null,
     group_a: ?i32 = null,
     string_string_map: ArrayList(StringStringMapEntry),
-    oneof_field: ?oneof_field_union,
-
-    pub const _oneof_field_case = enum {
-        oneof_uint32,
-        oneof_test_all_types,
-        oneof_string,
-        oneof_bytes,
-    };
-    pub const oneof_field_union = union(_oneof_field_case) {
+    oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_test_all_types: TestAllTypes,
         oneof_string: ManagedString,
@@ -1640,7 +1580,7 @@ pub const TestHugeFieldNumbers = struct {
             .oneof_string = fd(536870013, .String),
             .oneof_bytes = fd(536870014, .String),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .optional_int32 = fd(536870000, .{ .Varint = .Simple }),
@@ -1653,7 +1593,7 @@ pub const TestHugeFieldNumbers = struct {
         .optional_message = fd(536870007, .{ .SubMessage = {} }),
         .group_a = fd(536870009, .{ .Varint = .Simple }),
         .string_string_map = fd(536870010, .{ .List = .{ .SubMessage = {} } }),
-        .oneof_field = fd(null, .{ .OneOf = oneof_field_union }),
+        .oneof_field = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .oneof_field)) }),
     };
 
     pub const StringStringMapEntry = struct {

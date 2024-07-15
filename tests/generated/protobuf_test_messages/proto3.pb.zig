@@ -158,21 +158,7 @@ pub const TestAllTypesProto3 = struct {
     field__Name16: i32 = 0,
     field_name17__: i32 = 0,
     Field_name18__: i32 = 0,
-    oneof_field: ?oneof_field_union,
-
-    pub const _oneof_field_case = enum {
-        oneof_uint32,
-        oneof_nested_message,
-        oneof_string,
-        oneof_bytes,
-        oneof_bool,
-        oneof_uint64,
-        oneof_float,
-        oneof_double,
-        oneof_enum,
-        oneof_null_value,
-    };
-    pub const oneof_field_union = union(_oneof_field_case) {
+    oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_nested_message: NestedMessage,
         oneof_string: ManagedString,
@@ -195,7 +181,7 @@ pub const TestAllTypesProto3 = struct {
             .oneof_enum = fd(119, .{ .Varint = .Simple }),
             .oneof_null_value = fd(120, .{ .Varint = .Simple }),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .optional_int32 = fd(1, .{ .Varint = .Simple }),
@@ -338,7 +324,7 @@ pub const TestAllTypesProto3 = struct {
         .field__Name16 = fd(416, .{ .Varint = .Simple }),
         .field_name17__ = fd(417, .{ .Varint = .Simple }),
         .Field_name18__ = fd(418, .{ .Varint = .Simple }),
-        .oneof_field = fd(null, .{ .OneOf = oneof_field_union }),
+        .oneof_field = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .oneof_field)) }),
     };
 
     pub const NestedEnum = enum(i32) {

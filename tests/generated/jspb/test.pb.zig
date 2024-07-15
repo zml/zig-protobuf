@@ -278,70 +278,46 @@ pub const TestReservedNamesExtension = struct {
 pub const TestMessageWithOneof = struct {
     normal_field: ?bool = null,
     repeated_field: ArrayList(ManagedString),
-    partial_oneof: ?partial_oneof_union,
-    recursive_oneof: ?recursive_oneof_union,
-    default_oneof_a: ?default_oneof_a_union,
-    default_oneof_b: ?default_oneof_b_union,
-
-    pub const _partial_oneof_case = enum {
-        pone,
-        pthree,
-    };
-    pub const partial_oneof_union = union(_partial_oneof_case) {
+    partial_oneof: ?union(enum) {
         pone: ManagedString,
         pthree: ManagedString,
         pub const _union_desc = .{
             .pone = fd(3, .String),
             .pthree = fd(5, .String),
         };
-    };
-
-    pub const _recursive_oneof_case = enum {
-        rone,
-        rtwo,
-    };
-    pub const recursive_oneof_union = union(_recursive_oneof_case) {
+    },
+    recursive_oneof: ?union(enum) {
         rone: TestMessageWithOneof,
         rtwo: ManagedString,
         pub const _union_desc = .{
             .rone = fd(6, .{ .SubMessage = {} }),
             .rtwo = fd(7, .String),
         };
-    };
-
-    pub const _default_oneof_a_case = enum {
-        aone,
-        atwo,
-    };
-    pub const default_oneof_a_union = union(_default_oneof_a_case) {
+    },
+    default_oneof_a: ?union(enum) {
         aone: i32,
         atwo: i32,
         pub const _union_desc = .{
             .aone = fd(10, .{ .Varint = .Simple }),
             .atwo = fd(11, .{ .Varint = .Simple }),
         };
-    };
-
-    pub const _default_oneof_b_case = enum {
-        bone,
-        btwo,
-    };
-    pub const default_oneof_b_union = union(_default_oneof_b_case) {
+    },
+    default_oneof_b: ?union(enum) {
         bone: i32,
         btwo: i32,
         pub const _union_desc = .{
             .bone = fd(12, .{ .Varint = .Simple }),
             .btwo = fd(13, .{ .Varint = .Simple }),
         };
-    };
+    },
 
     pub const _desc_table = .{
         .normal_field = fd(8, .{ .Varint = .Simple }),
         .repeated_field = fd(9, .{ .List = .String }),
-        .partial_oneof = fd(null, .{ .OneOf = partial_oneof_union }),
-        .recursive_oneof = fd(null, .{ .OneOf = recursive_oneof_union }),
-        .default_oneof_a = fd(null, .{ .OneOf = default_oneof_a_union }),
-        .default_oneof_b = fd(null, .{ .OneOf = default_oneof_b_union }),
+        .partial_oneof = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .partial_oneof)) }),
+        .recursive_oneof = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .recursive_oneof)) }),
+        .default_oneof_a = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .default_oneof_a)) }),
+        .default_oneof_b = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .default_oneof_b)) }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

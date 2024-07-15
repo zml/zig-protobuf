@@ -669,17 +669,7 @@ pub const Struct = struct {
 };
 
 pub const Value = struct {
-    kind: ?kind_union,
-
-    pub const _kind_case = enum {
-        null_value,
-        number_value,
-        string_value,
-        bool_value,
-        struct_value,
-        list_value,
-    };
-    pub const kind_union = union(_kind_case) {
+    kind: ?union(enum) {
         null_value: NullValue,
         number_value: f64,
         string_value: ManagedString,
@@ -694,10 +684,10 @@ pub const Value = struct {
             .struct_value = fd(5, .{ .SubMessage = {} }),
             .list_value = fd(6, .{ .SubMessage = {} }),
         };
-    };
+    },
 
     pub const _desc_table = .{
-        .kind = fd(null, .{ .OneOf = kind_union }),
+        .kind = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .kind)) }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

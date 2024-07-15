@@ -22,3 +22,24 @@ message OneofContainer {
   string regular_field = 4;
   Enum enum_field = 5;
 }
+
+message NestedOneofContainer {
+
+  message AnotherContainer {
+
+    oneof key {
+      string a = 11;
+      int64 b = 12;
+    }
+
+    int64 buffer_address = 13;
+  }
+
+  oneof key {
+    string a = 5;
+    int64 b = 6;
+  }
+
+  AnotherContainer failure = 7;
+}
+
