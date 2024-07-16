@@ -75,6 +75,17 @@ pub const ManagedString = union(ManagedStringTag) {
             else => {},
         }
     }
+
+    pub fn format(
+        self: ManagedString,
+        comptime fmt: []const u8,
+        options: std.fmt.FormatOptions,
+        writer: anytype,
+    ) !void {
+        _ = fmt;
+        _ = options;
+        try writer.writeAll(self.getSlice());
+    }
 };
 
 /// Enum describing the different field types available.

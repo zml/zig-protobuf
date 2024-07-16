@@ -12,9 +12,8 @@ const testing = std.testing;
 const ArrayList = std.ArrayList;
 const AutoHashMap = std.AutoHashMap;
 const FieldType = protobuf.FieldType;
-const tests = @import("./generated/tests.pb.zig");
-const DefaultValues = @import("./generated/jspb/test.pb.zig").DefaultValues;
-const tests_oneof = @import("./generated/tests/oneof.pb.zig");
+const DefaultValues = @import("./generated/jspb.pb.zig").DefaultValues;
+const tests_oneof = @import("./generated/oneof.pb.zig");
 
 pub fn printAllDecoded(input: []const u8) !void {
     var iterator = protobuf.WireDecoderIterator{ .input = input };

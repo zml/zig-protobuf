@@ -2,9 +2,9 @@ const std = @import("std");
 const testing = std.testing;
 
 const protobuf = @import("protobuf");
-const tests = @import("./generated/tests.pb.zig");
+const tests = @import("./tests.pb.zig");
 const proto3 = @import("./generated/protobuf_test_messages/proto3.pb.zig");
-const longs = @import("./generated/tests/longs.pb.zig");
+const longs = @import("./tests/longs.pb.zig");
 const unittest = @import("./generated/unittest.pb.zig");
 const longName = @import("./generated/some/really/long/name/which/does/not/really/make/any/sense/but/sometimes/we/still/see/stuff/like/this.pb.zig");
 

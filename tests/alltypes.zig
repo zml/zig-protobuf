@@ -2,12 +2,12 @@ const std = @import("std");
 const testing = std.testing;
 
 const protobuf = @import("protobuf");
-const tests = @import("./generated/tests.pb.zig");
-const proto3 = @import("./generated/protobuf_test_messages/proto3.pb.zig");
-const longs = @import("./generated/tests/longs.pb.zig");
-const jspb = @import("./generated/jspb/test.pb.zig");
+const tests = @import("./generated/all.pb.zig");
+const proto3 = @import("./generated/test_messages_proto3.pb.zig");
+const longs = @import("./generated/msg-long.pb.zig");
+const jspb = @import("./generated/jspb.pb.zig");
 const unittest = @import("./generated/unittest.pb.zig");
-const longName = @import("./generated/some/really/long/name/which/does/not/really/make/any/sense/but/sometimes/we/still/see/stuff/like/this.pb.zig");
+const longName = @import("./generated/whitespace-in-name.pb.zig");
 
 pub fn printAllDecoded(input: []const u8) !void {
     var iterator = protobuf.WireDecoderIterator{ .input = input };

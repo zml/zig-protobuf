@@ -48,13 +48,19 @@ const GenerationContext = struct {
     /// map of known packages
     known_packages: std.StringHashMap(FullName) = std.StringHashMap(FullName).init(allocator),
 
-    /// map of "package.fully.qualified.names" to output string lists
+    imports_map: std.StringHashMap([]const u8) = std.StringHashMap([]const u8).init(allocator),
+
+    /// map of "package.fully.qualified.names" to output string lists (aka files)
     output_lists: std.StringHashMap(std.ArrayList([]const u8)) = std.StringHashMap(std.ArrayList([]const u8)).init(allocator),
 
     const Self = @This();
 
     pub fn processRequest(self: *Self) !void {
         for (self.req.proto_file.items) |file| {
+            if (file.dependency.items.len > 0) {
+                std.log.debug("file {?} depends on:", .{file.name});
+                for (file.dependency.items) |dep| std.log.debug("- {?}", .{dep});
+            }
             const t: descriptor.FileDescriptorProto = file;
 
             if (t.package) |package| {
@@ -63,13 +69,19 @@ const GenerationContext = struct {
                 self.res.@"error" = pb.ManagedString{ .Owned = .{ .str = try std.fmt.allocPrint(allocator, "ERROR Package directive missing in {?s}\n", .{file.name.?.getSlice()}), .allocator = allocator } };
                 return;
             }
+
+            try self.imports_map.ensureUnusedCapacity(1000);
+            var prefix = try std.ArrayList(u8).initCapacity(allocator, file.package.?.getSlice().len + 128);
+            prefix.appendAssumeCapacity('.');
+            prefix.appendSliceAssumeCapacity(file.package.?.getSlice());
+            try self.registerMessages(file.name.?.getSlice(), &prefix, file.enum_type);
+            try self.registerMessages(file.name.?.getSlice(), &prefix, file.message_type);
         }
 
         for (self.req.proto_file.items) |file| {
             const t: descriptor.FileDescriptorProto = file;
 
             const name = FullName{ .buf = t.name.?.getSlice() };
-
             try self.printFileDeclarations(name, file);
         }
 
@@ -79,7 +91,6 @@ const GenerationContext = struct {
 
             ret.name = pb.ManagedString.move(try self.fileNameFromPackage(entry.key_ptr.*), allocator);
             ret.content = pb.ManagedString.move(try std.mem.concat(allocator, u8, entry.value_ptr.*.items), allocator);
-            std.log.warn("mapped {s} to {s}", .{ entry.key_ptr.*, ret.name.?.getSlice() });
             try self.res.file.append(ret);
         }
 
@@ -96,7 +107,7 @@ const GenerationContext = struct {
         if (std.mem.endsWith(u8, n, ".proto")) n = name[0 .. n.len - ".proto".len];
         for (n, 0..) |byte, i| {
             r[i] = switch (byte) {
-                '/', '\\' => '/',
+                '.', '/', '\\' => '/',
                 else => byte,
             };
         }
@@ -120,6 +131,9 @@ const GenerationContext = struct {
                 \\const ManagedString = protobuf.ManagedString;
                 \\const fd = protobuf.fd;
                 \\
+                \\test {{
+                \\    std.testing.refAllDeclsRecursive(@This());
+                \\}}
             , .{name.buf}));
 
             // collect all imports from all files sharing the same package
@@ -211,13 +225,21 @@ const GenerationContext = struct {
 
     fn fieldTypeFqn(ctx: *Self, parentFqn: FullName, file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto) !string {
         if (field.type_name) |typeName| {
+            if (!ctx.imports_map.contains(typeName.getSlice())) {
+                std.log.warn("Unknown type: {}", .{typeName});
+            }
+            const is_enum = std.mem.endsWith(u8, typeName.getSlice(), ".Enum");
+            _ = is_enum; // autofix
+            // if (is_enum) std.log.debug("{s}", .{typeName.getSlice()});
             const fullTypeName = FullName{ .buf = typeName.getSlice()[1..] };
 
             if (fullTypeName.parent()) |parent| {
                 if (parent.eql(parentFqn)) {
+                    // if (is_enum) std.log.debug("return@0 {s} !", .{ fullTypeName.name().buf });
                     return fullTypeName.name().buf;
                 }
                 if (parent.eql(FullName{ .buf = file.package.?.getSlice() })) {
+                    // if (is_enum) std.log.debug("return@1 {s} !", .{ fullTypeName.name().buf });
                     return fullTypeName.name().buf;
                 }
             }
@@ -234,6 +256,7 @@ const GenerationContext = struct {
                     // it is in current package, return full name
                     if (filePackage.eql(parent.?)) {
                         const name = fullTypeName.buf[parent.?.buf.len + 1 ..];
+                        // if (is_enum) std.log.debug("return@2: {s}", .{name});
                         return name;
                     }
 
@@ -241,6 +264,7 @@ const GenerationContext = struct {
                     if (value.eql(parent.?)) {
                         const prop = try ctx.escapeFqn(parent.?.buf);
                         const name = fullTypeName.buf[prop.len + 1 ..];
+                        // if (is_enum) std.log.debug("return@3 {s}.{s}", .{prop, name});
                         return try std.fmt.allocPrint(allocator, "{s}.{s}", .{ prop, name });
                     }
                 }
@@ -250,6 +274,7 @@ const GenerationContext = struct {
 
             std.debug.print("Unknown type: {s} from {s} in {?s}\n", .{ fullTypeName.buf, parentFqn.buf, file.package.?.getSlice() });
 
+            // if (is_enum) std.log.debug("return@4 !", .{});
             return try ctx.escapeFqn(field.type_name.?.getSlice());
         }
         @panic("field has no type");
@@ -441,8 +466,10 @@ const GenerationContext = struct {
     fn generateFieldDeclaration(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, message: descriptor.DescriptorProto, field: descriptor.FieldDescriptorProto, is_union: bool) !void {
         _ = message;
 
+        // std.log.info("- new field: {?}: {?}", .{field.name, field.type_name});
         const type_str = try ctx.getFieldType(fqn, file, field, is_union);
         const field_name = try ctx.getFieldName(field);
+        // if (std.mem.eql(u8, field_name, "x")) std.log.debug("{s}: {s},", .{field_name, type_str});
         const nullable = type_str[0] == '?';
 
         if (try ctx.getFieldDefault(field, file, nullable)) |default_value| {
@@ -469,12 +496,44 @@ const GenerationContext = struct {
         return count;
     }
 
+    fn registerMessages(self: *Self, file: []const u8, prefix: *std.ArrayList(u8), messages: anytype) !void {
+        const original_len = prefix.items.len;
+        defer prefix.shrinkRetainingCapacity(original_len);
+
+        try prefix.append('.');
+
+        for (messages.items) |msg| {
+            const last_len = prefix.items.len;
+            defer prefix.shrinkRetainingCapacity(last_len);
+
+            try prefix.appendSlice(msg.name.?.getSlice());
+            var fqn = prefix.items;
+            const res = try self.imports_map.getOrPut(fqn);
+            if (res.found_existing) {
+                std.debug.assert(std.mem.eql(u8, file, res.value_ptr.*));
+            } else {
+                fqn = try allocator.dupe(u8, prefix.items);
+                res.key_ptr.* = fqn;
+                res.value_ptr.* = file;
+                std.log.debug("{s} -> {s}", .{ fqn, file });
+            }
+
+            if (@hasField(@TypeOf(msg), "nested_type")) {
+                try self.registerMessages(file, prefix, msg.nested_type);
+            }
+            if (@hasField(@TypeOf(msg), "enum_type")) {
+                try self.registerMessages(file, prefix, msg.enum_type);
+            }
+        }
+    }
+
     fn generateMessages(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, messages: std.ArrayList(descriptor.DescriptorProto)) !void {
         for (messages.items) |message| {
             const m: descriptor.DescriptorProto = message;
             const messageFqn = try fqn.append(allocator, m.name.?.getSlice());
+            std.log.info("message {?} in {?} (pkg: {?}", .{ m.name, file.name, file.package });
 
-            try list.append(try std.fmt.allocPrint(allocator, "\npub const {?s} = struct {{\n", .{m.name.?.getSlice()}));
+            try list.append(try std.fmt.allocPrint(allocator, "\npub const {?} = struct {{\n", .{m.name}));
 
             // append all fields that are not part of a oneof
             for (m.field.items) |f| {

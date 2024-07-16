@@ -3,7 +3,7 @@ const protobuf = @import("protobuf");
 const mem = std.mem;
 const Allocator = mem.Allocator;
 const testing = std.testing;
-const tests_oneof = @import("./generated/tests/oneof.pb.zig");
+const tests_oneof = @import("./tests/oneof.pb.zig");
 
 test "decode empty oneof must be null" {
     const decoded = try tests_oneof.OneofContainer.decode("", testing.allocator);

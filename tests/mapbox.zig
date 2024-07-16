@@ -2,7 +2,7 @@ const std = @import("std");
 const testing = std.testing;
 
 const protobuf = @import("protobuf");
-const vector_tile = @import("./generated/vector_tile.pb.zig");
+const vector_tile = @import("./generated/mapbox.pb.zig");
 const binary_file = @embedFile("./fixtures/vector_tile.bin");
 
 test "mapbox decoding and re-encoding" {

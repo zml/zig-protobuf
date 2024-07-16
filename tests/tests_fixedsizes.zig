@@ -1,4 +1,4 @@
-const FixedSizes = @import("./generated/tests.pb.zig").FixedSizes;
+const FixedSizes = @import("./generated/fixedsizes.pb.zig").FixedSizes;
 
 const std = @import("std");
 const testing = std.testing;
