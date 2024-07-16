@@ -144,8 +144,11 @@ const GenerationContext = struct {
             \\
         , .{file.package}));
 
-        for (file.dependency.items) |dep_name| {
+        std.log.debug("Resolving {} deps", .{file.name.?});
+        file_deps: for (file.dependency.items) |dep_name| {
+            std.log.debug("looking for {}", .{dep_name});
             for (self.req.proto_file.items, 0..) |dep, index| {
+                std.log.debug("   found {}", .{dep.name.?});
                 if (!std.mem.eql(u8, dep_name.getSlice(), dep.name.?.getSlice()))
                     continue;
 
@@ -170,6 +173,9 @@ const GenerationContext = struct {
                     import_name,
                     import_name,
                 }));
+                continue :file_deps;
+            } else {
+                std.log.warn("Dependency of {?} not found: {}", .{ file.name, dep_name });
             }
         }
 
@@ -305,8 +311,8 @@ const GenerationContext = struct {
     }
 
     fn importName(self: *Self, name: string) !string {
-        var n = name;
-        if (std.mem.endsWith(u8, n, ".proto")) n = n[0 .. n.len - ".proto".len];
+        const n = name;
+        // if (std.mem.endsWith(u8, n, ".proto")) n = n[0 .. n.len - ".proto".len];
         var r: []u8 = try self.allocator.alloc(u8, n.len);
         for (n, 0..) |byte, i| {
             r[i] = switch (byte) {
@@ -314,6 +320,7 @@ const GenerationContext = struct {
                 else => byte,
             };
         }
+        std.log.debug("import name: {s} -> {s}", .{ name, r });
         return r;
     }
 

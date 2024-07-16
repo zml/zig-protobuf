@@ -12,17 +12,17 @@ test {
     std.testing.refAllDeclsRecursive(@This());
 }
 /// import package google.protobuf
-const google_protobuf_any = @import("google_protobuf_any");
+const google_protobuf_any_proto = @import("google_protobuf_any_proto");
 /// import package google.protobuf
-const google_protobuf_duration = @import("google_protobuf_duration");
+const google_protobuf_duration_proto = @import("google_protobuf_duration_proto");
 /// import package google.protobuf
-const google_protobuf_field_mask = @import("google_protobuf_field_mask");
+const google_protobuf_field_mask_proto = @import("google_protobuf_field_mask_proto");
 /// import package google.protobuf
-const google_protobuf_struct = @import("google_protobuf_struct");
+const google_protobuf_struct_proto = @import("google_protobuf_struct_proto");
 /// import package google.protobuf
-const google_protobuf_timestamp = @import("google_protobuf_timestamp");
+const google_protobuf_timestamp_proto = @import("google_protobuf_timestamp_proto");
 /// import package google.protobuf
-const google_protobuf_wrappers = @import("google_protobuf_wrappers");
+const google_protobuf_wrappers_proto = @import("google_protobuf_wrappers_proto");
 
 pub const ForeignEnum = enum(i32) {
     FOREIGN_FOO = 0,
@@ -122,38 +122,38 @@ pub const TestAllTypesProto3 = struct {
     map_string_foreign_message: ArrayList(TestAllTypesProto3.MapStringForeignMessageEntry),
     map_string_nested_enum: ArrayList(TestAllTypesProto3.MapStringNestedEnumEntry),
     map_string_foreign_enum: ArrayList(TestAllTypesProto3.MapStringForeignEnumEntry),
-    optional_bool_wrapper: ?google_protobuf_wrappers.BoolValue = null,
-    optional_int32_wrapper: ?google_protobuf_wrappers.Int32Value = null,
-    optional_int64_wrapper: ?google_protobuf_wrappers.Int64Value = null,
-    optional_uint32_wrapper: ?google_protobuf_wrappers.UInt32Value = null,
-    optional_uint64_wrapper: ?google_protobuf_wrappers.UInt64Value = null,
-    optional_float_wrapper: ?google_protobuf_wrappers.FloatValue = null,
-    optional_double_wrapper: ?google_protobuf_wrappers.DoubleValue = null,
-    optional_string_wrapper: ?google_protobuf_wrappers.StringValue = null,
-    optional_bytes_wrapper: ?google_protobuf_wrappers.BytesValue = null,
-    repeated_bool_wrapper: ArrayList(google_protobuf_wrappers.BoolValue),
-    repeated_int32_wrapper: ArrayList(google_protobuf_wrappers.Int32Value),
-    repeated_int64_wrapper: ArrayList(google_protobuf_wrappers.Int64Value),
-    repeated_uint32_wrapper: ArrayList(google_protobuf_wrappers.UInt32Value),
-    repeated_uint64_wrapper: ArrayList(google_protobuf_wrappers.UInt64Value),
-    repeated_float_wrapper: ArrayList(google_protobuf_wrappers.FloatValue),
-    repeated_double_wrapper: ArrayList(google_protobuf_wrappers.DoubleValue),
-    repeated_string_wrapper: ArrayList(google_protobuf_wrappers.StringValue),
-    repeated_bytes_wrapper: ArrayList(google_protobuf_wrappers.BytesValue),
-    optional_duration: ?google_protobuf_duration.Duration = null,
-    optional_timestamp: ?google_protobuf_timestamp.Timestamp = null,
-    optional_field_mask: ?google_protobuf_field_mask.FieldMask = null,
-    optional_struct: ?google_protobuf_struct.Struct = null,
-    optional_any: ?google_protobuf_any.Any = null,
-    optional_value: ?google_protobuf_struct.Value = null,
-    optional_null_value: google_protobuf_struct.NullValue = @enumFromInt(0),
-    repeated_duration: ArrayList(google_protobuf_duration.Duration),
-    repeated_timestamp: ArrayList(google_protobuf_timestamp.Timestamp),
-    repeated_fieldmask: ArrayList(google_protobuf_field_mask.FieldMask),
-    repeated_struct: ArrayList(google_protobuf_struct.Struct),
-    repeated_any: ArrayList(google_protobuf_any.Any),
-    repeated_value: ArrayList(google_protobuf_struct.Value),
-    repeated_list_value: ArrayList(google_protobuf_struct.ListValue),
+    optional_bool_wrapper: ?google_protobuf_wrappers_proto.BoolValue = null,
+    optional_int32_wrapper: ?google_protobuf_wrappers_proto.Int32Value = null,
+    optional_int64_wrapper: ?google_protobuf_wrappers_proto.Int64Value = null,
+    optional_uint32_wrapper: ?google_protobuf_wrappers_proto.UInt32Value = null,
+    optional_uint64_wrapper: ?google_protobuf_wrappers_proto.UInt64Value = null,
+    optional_float_wrapper: ?google_protobuf_wrappers_proto.FloatValue = null,
+    optional_double_wrapper: ?google_protobuf_wrappers_proto.DoubleValue = null,
+    optional_string_wrapper: ?google_protobuf_wrappers_proto.StringValue = null,
+    optional_bytes_wrapper: ?google_protobuf_wrappers_proto.BytesValue = null,
+    repeated_bool_wrapper: ArrayList(google_protobuf_wrappers_proto.BoolValue),
+    repeated_int32_wrapper: ArrayList(google_protobuf_wrappers_proto.Int32Value),
+    repeated_int64_wrapper: ArrayList(google_protobuf_wrappers_proto.Int64Value),
+    repeated_uint32_wrapper: ArrayList(google_protobuf_wrappers_proto.UInt32Value),
+    repeated_uint64_wrapper: ArrayList(google_protobuf_wrappers_proto.UInt64Value),
+    repeated_float_wrapper: ArrayList(google_protobuf_wrappers_proto.FloatValue),
+    repeated_double_wrapper: ArrayList(google_protobuf_wrappers_proto.DoubleValue),
+    repeated_string_wrapper: ArrayList(google_protobuf_wrappers_proto.StringValue),
+    repeated_bytes_wrapper: ArrayList(google_protobuf_wrappers_proto.BytesValue),
+    optional_duration: ?google_protobuf_duration_proto.Duration = null,
+    optional_timestamp: ?google_protobuf_timestamp_proto.Timestamp = null,
+    optional_field_mask: ?google_protobuf_field_mask_proto.FieldMask = null,
+    optional_struct: ?google_protobuf_struct_proto.Struct = null,
+    optional_any: ?google_protobuf_any_proto.Any = null,
+    optional_value: ?google_protobuf_struct_proto.Value = null,
+    optional_null_value: google_protobuf_struct_proto.NullValue = @enumFromInt(0),
+    repeated_duration: ArrayList(google_protobuf_duration_proto.Duration),
+    repeated_timestamp: ArrayList(google_protobuf_timestamp_proto.Timestamp),
+    repeated_fieldmask: ArrayList(google_protobuf_field_mask_proto.FieldMask),
+    repeated_struct: ArrayList(google_protobuf_struct_proto.Struct),
+    repeated_any: ArrayList(google_protobuf_any_proto.Any),
+    repeated_value: ArrayList(google_protobuf_struct_proto.Value),
+    repeated_list_value: ArrayList(google_protobuf_struct_proto.ListValue),
     fieldname1: i32 = 0,
     field_name2: i32 = 0,
     _field_name3: i32 = 0,
@@ -182,7 +182,7 @@ pub const TestAllTypesProto3 = struct {
         oneof_float: f32,
         oneof_double: f64,
         oneof_enum: TestAllTypesProto3.NestedEnum,
-        oneof_null_value: google_protobuf_struct.NullValue,
+        oneof_null_value: google_protobuf_struct_proto.NullValue,
         pub const _union_desc = .{
             .oneof_uint32 = fd(111, .{ .Varint = .Simple }),
             .oneof_nested_message = fd(112, .{ .SubMessage = {} }),

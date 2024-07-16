@@ -12,21 +12,21 @@ test {
     std.testing.refAllDeclsRecursive(@This());
 }
 /// import package tests
-pub const fixedsizes = @import("fixedsizes");
+pub const fixedsizes_proto = @import("fixedsizes_proto");
 /// import package vector_tile
-pub const mapbox = @import("mapbox");
+pub const mapbox_proto = @import("mapbox_proto");
 /// import package jspb.test
-pub const jspb = @import("jspb");
+pub const jspb_proto = @import("jspb_proto");
 /// import package protobuf_test_messages.proto3
-const test_messages_proto3 = @import("test_messages_proto3");
+const test_messages_proto3_proto = @import("test_messages_proto3_proto");
 /// import package unittest
-const unittest = @import("unittest");
+const unittest_proto = @import("unittest_proto");
 /// import package graphics
-const graphics = @import("graphics");
+const graphics_proto = @import("graphics_proto");
 /// import package tests.oneof
-const oneof = @import("oneof");
+const oneof_proto = @import("oneof_proto");
 /// import package tests.longs
-const msg_long = @import("msg_long");
+const msg_long_proto = @import("msg_long_proto");
 
 pub const TopLevelEnum = enum(i32) {
     SE_ZERO = 0,
@@ -167,7 +167,7 @@ pub const WithRepeatedStrings = struct {
 };
 
 pub const WithDeps = struct {
-    fixed: ?fixedsizes.FixedSizes = null,
+    fixed: ?fixedsizes_proto.FixedSizes = null,
 
     pub const _desc_table = .{
         .fixed = fd(1, .{ .SubMessage = {} }),
