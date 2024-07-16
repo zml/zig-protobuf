@@ -604,7 +604,14 @@ fn deinit_field(result: anytype, comptime field_name: []const u8, comptime ftype
             }
         },
         .AllocMessage => {
-            // Note: we aren't able to track per message alloc.
+            // Note: we aren't tracking the message allocation itself.
+            switch (@typeInfo(@TypeOf(@field(result, field_name)))) {
+                .Optional => if (@field(result, field_name)) |submessage| {
+                    submessage.deinit();
+                },
+                .Pointer => @field(result, field_name).deinit(),
+                else => @compileError("unreachable"),
+            }
         },
         .List => |list_type| {
             if (list_type == .SubMessage or list_type == .String) {
