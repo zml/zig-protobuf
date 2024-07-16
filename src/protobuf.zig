@@ -234,7 +234,7 @@ fn append_fixed(pb: *ArrayList(u8), value: anytype) !void {
 
 /// Appends a submessage to the array.
 /// Recursively calls internal_pb_encode.
-fn append_submessage(pb: *ArrayList(u8), value: anytype) !void {
+fn append_submessage(pb: *ArrayList(u8), value: anytype) Allocator.Error!void {
     const len_index = pb.items.len;
     try internal_pb_encode(pb, value);
     const size_encoded = pb.items.len - len_index;
@@ -242,14 +242,14 @@ fn append_submessage(pb: *ArrayList(u8), value: anytype) !void {
 }
 
 /// Simple appending of a list of bytes.
-fn append_const_bytes(pb: *ArrayList(u8), value: ManagedString) !void {
+fn append_const_bytes(pb: *ArrayList(u8), value: ManagedString) Allocator.Error!void {
     const slice = value.getSlice();
     try append_as_varint(pb, slice.len, .Simple);
     try pb.appendSlice(slice);
 }
 
 /// simple appending of a list of fixed-size data.
-fn append_packed_list_of_fixed(pb: *ArrayList(u8), comptime field: FieldDescriptor, value_list: anytype) !void {
+fn append_packed_list_of_fixed(pb: *ArrayList(u8), comptime field: FieldDescriptor, value_list: anytype) Allocator.Error!void {
     if (value_list.items.len > 0) {
         // first append the tag for the field descriptor
         try append_tag(pb, field);
@@ -486,7 +486,7 @@ pub fn pb_dupe(comptime T: type, original: T, allocator: Allocator) !T {
 }
 
 /// Internal dupe function for a specific field
-fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype: FieldType, allocator: Allocator) !@TypeOf(@field(original, field_name)) {
+fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype: FieldType, allocator: Allocator) Allocator.Error!@TypeOf(@field(original, field_name)) {
     switch (ftype) {
         .Varint, .FixedInt => {
             return @field(original, field_name);
@@ -988,7 +988,7 @@ pub fn MessageMixins(comptime Self: type) type {
         pub fn deinit(self: Self) void {
             return pb_deinit(self);
         }
-        pub fn dupe(self: Self, allocator: Allocator) !Self {
+        pub fn dupe(self: Self, allocator: Allocator) Allocator.Error!Self {
             return pb_dupe(Self, self, allocator);
         }
     };
