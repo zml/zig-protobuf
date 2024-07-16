@@ -2,7 +2,7 @@
 ///! package some.really.long.name.which.does.not.really.make.any.sense.but.sometimes.we.still.see.stuff.like.this
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;

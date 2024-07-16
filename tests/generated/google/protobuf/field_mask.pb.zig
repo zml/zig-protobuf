@@ -2,7 +2,7 @@
 ///! package google.protobuf
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;
@@ -13,7 +13,7 @@ test {
 }
 
 pub const FieldMask = struct {
-    paths: ArrayList(ManagedString),
+    paths: ArrayListU(ManagedString),
 
     pub const _desc_table = .{
         .paths = fd(1, .{ .List = .String }),

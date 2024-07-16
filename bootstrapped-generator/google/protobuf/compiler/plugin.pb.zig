@@ -2,13 +2,17 @@
 ///! package google.protobuf.compiler
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;
 const fd = protobuf.fd;
+
+test {
+    std.testing.refAllDeclsRecursive(@This());
+}
 /// import package google.protobuf
-const google_protobuf = @import("../protobuf.pb.zig");
+const google_protobuf_descriptor_proto = @import("../descriptor.pb.zig");
 
 pub const Version = struct {
     major: ?i32 = null,
@@ -27,16 +31,16 @@ pub const Version = struct {
 };
 
 pub const CodeGeneratorRequest = struct {
-    file_to_generate: ArrayList(ManagedString),
+    file_to_generate: ArrayListU(ManagedString),
     parameter: ?ManagedString = null,
-    proto_file: ArrayList(google_protobuf.FileDescriptorProto),
-    compiler_version: ?Version = null,
+    proto_file: ArrayListU(google_protobuf_descriptor_proto.FileDescriptorProto),
+    compiler_version: ?*const Version = null,
 
     pub const _desc_table = .{
         .file_to_generate = fd(1, .{ .List = .String }),
         .parameter = fd(2, .String),
         .proto_file = fd(15, .{ .List = .{ .SubMessage = {} } }),
-        .compiler_version = fd(3, .{ .SubMessage = {} }),
+        .compiler_version = fd(3, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -45,7 +49,7 @@ pub const CodeGeneratorRequest = struct {
 pub const CodeGeneratorResponse = struct {
     @"error": ?ManagedString = null,
     supported_features: ?u64 = null,
-    file: ArrayList(File),
+    file: ArrayListU(CodeGeneratorResponse.File),
 
     pub const _desc_table = .{
         .@"error" = fd(1, .String),
@@ -63,13 +67,13 @@ pub const CodeGeneratorResponse = struct {
         name: ?ManagedString = null,
         insertion_point: ?ManagedString = null,
         content: ?ManagedString = null,
-        generated_code_info: ?google_protobuf.GeneratedCodeInfo = null,
+        generated_code_info: ?*const google_protobuf_descriptor_proto.GeneratedCodeInfo = null,
 
         pub const _desc_table = .{
             .name = fd(1, .String),
             .insertion_point = fd(2, .String),
             .content = fd(15, .String),
-            .generated_code_info = fd(16, .{ .SubMessage = {} }),
+            .generated_code_info = fd(16, .{ .AllocMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());

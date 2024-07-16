@@ -2,7 +2,7 @@
 ///! package unittest
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;
@@ -171,29 +171,29 @@ pub const TestAllTypes = struct {
     optional_string_piece: ?ManagedString = null,
     optional_cord: ?ManagedString = null,
     optional_lazy_message: ?*const TestAllTypes.NestedMessage = null,
-    repeated_int32: ArrayList(i32),
-    repeated_int64: ArrayList(i64),
-    repeated_uint32: ArrayList(u32),
-    repeated_uint64: ArrayList(u64),
-    repeated_sint32: ArrayList(i32),
-    repeated_sint64: ArrayList(i64),
-    repeated_fixed32: ArrayList(u32),
-    repeated_fixed64: ArrayList(u64),
-    repeated_sfixed32: ArrayList(i32),
-    repeated_sfixed64: ArrayList(i64),
-    repeated_float: ArrayList(f32),
-    repeated_double: ArrayList(f64),
-    repeated_bool: ArrayList(bool),
-    repeated_string: ArrayList(ManagedString),
-    repeated_bytes: ArrayList(ManagedString),
-    RepeatedGroup_a: ArrayList(i32),
-    repeated_nested_message: ArrayList(TestAllTypes.NestedMessage),
-    repeated_foreign_message: ArrayList(ForeignMessage),
-    repeated_nested_enum: ArrayList(TestAllTypes.NestedEnum),
-    repeated_foreign_enum: ArrayList(ForeignEnum),
-    repeated_string_piece: ArrayList(ManagedString),
-    repeated_cord: ArrayList(ManagedString),
-    repeated_lazy_message: ArrayList(TestAllTypes.NestedMessage),
+    repeated_int32: ArrayListU(i32),
+    repeated_int64: ArrayListU(i64),
+    repeated_uint32: ArrayListU(u32),
+    repeated_uint64: ArrayListU(u64),
+    repeated_sint32: ArrayListU(i32),
+    repeated_sint64: ArrayListU(i64),
+    repeated_fixed32: ArrayListU(u32),
+    repeated_fixed64: ArrayListU(u64),
+    repeated_sfixed32: ArrayListU(i32),
+    repeated_sfixed64: ArrayListU(i64),
+    repeated_float: ArrayListU(f32),
+    repeated_double: ArrayListU(f64),
+    repeated_bool: ArrayListU(bool),
+    repeated_string: ArrayListU(ManagedString),
+    repeated_bytes: ArrayListU(ManagedString),
+    RepeatedGroup_a: ArrayListU(i32),
+    repeated_nested_message: ArrayListU(TestAllTypes.NestedMessage),
+    repeated_foreign_message: ArrayListU(ForeignMessage),
+    repeated_nested_enum: ArrayListU(TestAllTypes.NestedEnum),
+    repeated_foreign_enum: ArrayListU(ForeignEnum),
+    repeated_string_piece: ArrayListU(ManagedString),
+    repeated_cord: ArrayListU(ManagedString),
+    repeated_lazy_message: ArrayListU(TestAllTypes.NestedMessage),
     default_int32: ?i32 = 41,
     default_int64: ?i64 = 42,
     default_uint32: ?u32 = 43,
@@ -319,7 +319,7 @@ pub const TestAllTypes = struct {
 pub const NestedTestAllTypes = struct {
     child: ?*const NestedTestAllTypes = null,
     payload: ?*const TestAllTypes = null,
-    repeated_child: ArrayList(NestedTestAllTypes),
+    repeated_child: ArrayListU(NestedTestAllTypes),
     lazy_child: ?*const NestedTestAllTypes = null,
     eager_child: ?*const TestAllTypes = null,
 
@@ -552,7 +552,7 @@ pub const TestRequired = struct {
 
 pub const TestRequiredForeign = struct {
     optional_message: ?*const TestRequired = null,
-    repeated_message: ArrayList(TestRequired),
+    repeated_message: ArrayListU(TestRequired),
     dummy: ?i32 = null,
     optional_lazy_message: ?*const NestedTestAllTypes = null,
 
@@ -568,7 +568,7 @@ pub const TestRequiredForeign = struct {
 
 pub const TestRequiredMessage = struct {
     optional_message: ?*const TestRequired = null,
-    repeated_message: ArrayList(TestRequired),
+    repeated_message: ArrayListU(TestRequired),
     required_message: ?*const TestRequired = null,
 
     pub const _desc_table = .{
@@ -790,8 +790,8 @@ pub const TestNestedMessageHasBits = struct {
     };
 
     pub const NestedMessage = struct {
-        nestedmessage_repeated_int32: ArrayList(i32),
-        nestedmessage_repeated_foreignmessage: ArrayList(ForeignMessage),
+        nestedmessage_repeated_int32: ArrayListU(i32),
+        nestedmessage_repeated_foreignmessage: ArrayListU(ForeignMessage),
 
         pub const _desc_table = .{
             .nestedmessage_repeated_int32 = fd(1, .{ .List = .{ .Varint = .Simple } }),
@@ -811,12 +811,12 @@ pub const TestCamelCaseFieldNames = struct {
     MessageField: ?*const ForeignMessage = null,
     StringPieceField: ?ManagedString = null,
     CordField: ?ManagedString = null,
-    RepeatedPrimitiveField: ArrayList(i32),
-    RepeatedStringField: ArrayList(ManagedString),
-    RepeatedEnumField: ArrayList(ForeignEnum),
-    RepeatedMessageField: ArrayList(ForeignMessage),
-    RepeatedStringPieceField: ArrayList(ManagedString),
-    RepeatedCordField: ArrayList(ManagedString),
+    RepeatedPrimitiveField: ArrayListU(i32),
+    RepeatedStringField: ArrayListU(ManagedString),
+    RepeatedEnumField: ArrayListU(ForeignEnum),
+    RepeatedMessageField: ArrayListU(ForeignMessage),
+    RepeatedStringPieceField: ArrayListU(ManagedString),
+    RepeatedCordField: ArrayListU(ManagedString),
 
     pub const _desc_table = .{
         .PrimitiveField = fd(1, .{ .Varint = .Simple }),
@@ -977,7 +977,7 @@ pub const OneString = struct {
 };
 
 pub const MoreString = struct {
-    data: ArrayList(ManagedString),
+    data: ArrayListU(ManagedString),
 
     pub const _desc_table = .{
         .data = fd(1, .{ .List = .String }),
@@ -997,7 +997,7 @@ pub const OneBytes = struct {
 };
 
 pub const MoreBytes = struct {
-    data: ArrayList(ManagedString),
+    data: ArrayListU(ManagedString),
 
     pub const _desc_table = .{
         .data = fd(1, .{ .List = .String }),
@@ -1237,7 +1237,7 @@ pub const TestOneof2 = struct {
 
     pub const NestedMessage = struct {
         moo_int: ?i64 = null,
-        corge_int: ArrayList(i32),
+        corge_int: ArrayListU(i32),
 
         pub const _desc_table = .{
             .moo_int = fd(1, .{ .Varint = .Simple }),
@@ -1280,20 +1280,20 @@ pub const TestRequiredOneof = struct {
 };
 
 pub const TestPackedTypes = struct {
-    packed_int32: ArrayList(i32),
-    packed_int64: ArrayList(i64),
-    packed_uint32: ArrayList(u32),
-    packed_uint64: ArrayList(u64),
-    packed_sint32: ArrayList(i32),
-    packed_sint64: ArrayList(i64),
-    packed_fixed32: ArrayList(u32),
-    packed_fixed64: ArrayList(u64),
-    packed_sfixed32: ArrayList(i32),
-    packed_sfixed64: ArrayList(i64),
-    packed_float: ArrayList(f32),
-    packed_double: ArrayList(f64),
-    packed_bool: ArrayList(bool),
-    packed_enum: ArrayList(ForeignEnum),
+    packed_int32: ArrayListU(i32),
+    packed_int64: ArrayListU(i64),
+    packed_uint32: ArrayListU(u32),
+    packed_uint64: ArrayListU(u64),
+    packed_sint32: ArrayListU(i32),
+    packed_sint64: ArrayListU(i64),
+    packed_fixed32: ArrayListU(u32),
+    packed_fixed64: ArrayListU(u64),
+    packed_sfixed32: ArrayListU(i32),
+    packed_sfixed64: ArrayListU(i64),
+    packed_float: ArrayListU(f32),
+    packed_double: ArrayListU(f64),
+    packed_bool: ArrayListU(bool),
+    packed_enum: ArrayListU(ForeignEnum),
 
     pub const _desc_table = .{
         .packed_int32 = fd(90, .{ .PackedList = .{ .Varint = .Simple } }),
@@ -1316,20 +1316,20 @@ pub const TestPackedTypes = struct {
 };
 
 pub const TestUnpackedTypes = struct {
-    unpacked_int32: ArrayList(i32),
-    unpacked_int64: ArrayList(i64),
-    unpacked_uint32: ArrayList(u32),
-    unpacked_uint64: ArrayList(u64),
-    unpacked_sint32: ArrayList(i32),
-    unpacked_sint64: ArrayList(i64),
-    unpacked_fixed32: ArrayList(u32),
-    unpacked_fixed64: ArrayList(u64),
-    unpacked_sfixed32: ArrayList(i32),
-    unpacked_sfixed64: ArrayList(i64),
-    unpacked_float: ArrayList(f32),
-    unpacked_double: ArrayList(f64),
-    unpacked_bool: ArrayList(bool),
-    unpacked_enum: ArrayList(ForeignEnum),
+    unpacked_int32: ArrayListU(i32),
+    unpacked_int64: ArrayListU(i64),
+    unpacked_uint32: ArrayListU(u32),
+    unpacked_uint64: ArrayListU(u64),
+    unpacked_sint32: ArrayListU(i32),
+    unpacked_sint64: ArrayListU(i64),
+    unpacked_fixed32: ArrayListU(u32),
+    unpacked_fixed64: ArrayListU(u64),
+    unpacked_sfixed32: ArrayListU(i32),
+    unpacked_sfixed64: ArrayListU(i64),
+    unpacked_float: ArrayListU(f32),
+    unpacked_double: ArrayListU(f64),
+    unpacked_bool: ArrayListU(bool),
+    unpacked_enum: ArrayListU(ForeignEnum),
 
     pub const _desc_table = .{
         .unpacked_int32 = fd(90, .{ .List = .{ .Varint = .Simple } }),
@@ -1369,8 +1369,8 @@ pub const TestDynamicExtensions = struct {
     dynamic_enum_extension: ?TestDynamicExtensions.DynamicEnumType = null,
     message_extension: ?*const ForeignMessage = null,
     dynamic_message_extension: ?*const TestDynamicExtensions.DynamicMessageType = null,
-    repeated_extension: ArrayList(ManagedString),
-    packed_extension: ArrayList(i32),
+    repeated_extension: ArrayListU(ManagedString),
+    packed_extension: ArrayListU(i32),
 
     pub const _desc_table = .{
         .scalar_extension = fd(2000, .{ .FixedInt = .I32 }),
@@ -1403,12 +1403,12 @@ pub const TestDynamicExtensions = struct {
 };
 
 pub const TestRepeatedScalarDifferentTagSizes = struct {
-    repeated_fixed32: ArrayList(u32),
-    repeated_int32: ArrayList(i32),
-    repeated_fixed64: ArrayList(u64),
-    repeated_int64: ArrayList(i64),
-    repeated_float: ArrayList(f32),
-    repeated_uint64: ArrayList(u64),
+    repeated_fixed32: ArrayListU(u32),
+    repeated_int32: ArrayListU(i32),
+    repeated_fixed64: ArrayListU(u64),
+    repeated_int64: ArrayListU(i64),
+    repeated_float: ArrayListU(f32),
+    repeated_uint64: ArrayListU(u64),
 
     pub const _desc_table = .{
         .repeated_fixed32 = fd(12, .{ .List = .{ .FixedInt = .I32 } }),
@@ -1425,7 +1425,7 @@ pub const TestRepeatedScalarDifferentTagSizes = struct {
 pub const TestParsingMerge = struct {
     required_all_types: ?*const TestAllTypes = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
     optional_group_all_types: ?*const TestAllTypes = null,
     repeated_group_all_types: ?*const TestAllTypes = null,
 
@@ -1438,13 +1438,13 @@ pub const TestParsingMerge = struct {
     };
 
     pub const RepeatedFieldsGenerator = struct {
-        field1: ArrayList(TestAllTypes),
-        field2: ArrayList(TestAllTypes),
-        field3: ArrayList(TestAllTypes),
+        field1: ArrayListU(TestAllTypes),
+        field2: ArrayListU(TestAllTypes),
+        field3: ArrayListU(TestAllTypes),
         Group1_field1: ?*const TestAllTypes = null,
         Group2_field1: ?*const TestAllTypes = null,
-        ext1: ArrayList(TestAllTypes),
-        ext2: ArrayList(TestAllTypes),
+        ext1: ArrayListU(TestAllTypes),
+        ext2: ArrayListU(TestAllTypes),
 
         pub const _desc_table = .{
             .field1 = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -1563,14 +1563,14 @@ pub const TestJsonName = struct {
 pub const TestHugeFieldNumbers = struct {
     optional_int32: ?i32 = null,
     fixed_32: ?i32 = null,
-    repeated_int32: ArrayList(i32),
-    packed_int32: ArrayList(i32),
+    repeated_int32: ArrayListU(i32),
+    packed_int32: ArrayListU(i32),
     optional_enum: ?ForeignEnum = null,
     optional_string: ?ManagedString = null,
     optional_bytes: ?ManagedString = null,
     optional_message: ?*const ForeignMessage = null,
     group_a: ?i32 = null,
-    string_string_map: ArrayList(TestHugeFieldNumbers.StringStringMapEntry),
+    string_string_map: ArrayListU(TestHugeFieldNumbers.StringStringMapEntry),
     oneof_field: ?union(enum) {
         oneof_uint32: u32,
         oneof_test_all_types: *const TestAllTypes,
@@ -1687,7 +1687,7 @@ pub const TestVerifyInt32 = struct {
     optional_int32_63: ?i32 = null,
     optional_int32_64: ?i32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_int32_1 = fd(1, .{ .Varint = .Simple }),
@@ -1710,7 +1710,7 @@ pub const TestVerifyMostlyInt32 = struct {
     optional_int32_63: ?i32 = null,
     optional_int32_64: ?i32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_int64_30 = fd(30, .{ .Varint = .Simple }),
@@ -1737,7 +1737,7 @@ pub const TestVerifyMostlyInt32BigFieldNumber = struct {
     optional_int32_63: ?i32 = null,
     optional_int32_64: ?i32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_int64_30 = fd(30, .{ .Varint = .Simple }),
@@ -1777,7 +1777,7 @@ pub const TestVerifyUint32 = struct {
     optional_uint32_63: ?u32 = null,
     optional_uint32_64: ?u32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_uint32_1 = fd(1, .{ .Varint = .Simple }),
@@ -1797,7 +1797,7 @@ pub const TestVerifyOneUint32 = struct {
     optional_int32_63: ?i32 = null,
     optional_int32_64: ?i32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_uint32_1 = fd(1, .{ .Varint = .Simple }),
@@ -1818,7 +1818,7 @@ pub const TestVerifyOneInt32BigFieldNumber = struct {
     optional_int64_63: ?i64 = null,
     optional_int64_64: ?i64 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_int32_65 = fd(65, .{ .Varint = .Simple }),
@@ -1841,7 +1841,7 @@ pub const TestVerifyInt32BigFieldNumber = struct {
     optional_int32_63: ?i32 = null,
     optional_int32_64: ?i32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_int32_1000 = fd(1000, .{ .Varint = .Simple }),
@@ -1865,7 +1865,7 @@ pub const TestVerifyUint32BigFieldNumber = struct {
     optional_uint32_63: ?u32 = null,
     optional_uint32_64: ?u32 = null,
     optional_all_types: ?*const TestAllTypes = null,
-    repeated_all_types: ArrayList(TestAllTypes),
+    repeated_all_types: ArrayListU(TestAllTypes),
 
     pub const _desc_table = .{
         .optional_uint32_1000 = fd(1000, .{ .Varint = .Simple }),
@@ -1898,7 +1898,7 @@ pub const TestVerifyBigFieldNumberUint32 = struct {
         optional_uint32_63: ?u32 = null,
         optional_uint32_64: ?u32 = null,
         optional_nested: ?*const TestVerifyBigFieldNumberUint32.Nested = null,
-        repeated_nested: ArrayList(TestVerifyBigFieldNumberUint32.Nested),
+        repeated_nested: ArrayListU(TestVerifyBigFieldNumberUint32.Nested),
 
         pub const _desc_table = .{
             .optional_uint32_5000 = fd(5000, .{ .Varint = .Simple }),
@@ -1923,39 +1923,39 @@ pub const EnumParseTester = struct {
     optional_seq_small_0_lowfield: ?EnumParseTester.SeqSmall0 = null,
     optional_seq_small_0_midfield: ?EnumParseTester.SeqSmall0 = null,
     optional_seq_small_0_hifield: ?EnumParseTester.SeqSmall0 = null,
-    repeated_seq_small_0_lowfield: ArrayList(EnumParseTester.SeqSmall0),
-    repeated_seq_small_0_midfield: ArrayList(EnumParseTester.SeqSmall0),
-    repeated_seq_small_0_hifield: ArrayList(EnumParseTester.SeqSmall0),
-    packed_seq_small_0_lowfield: ArrayList(EnumParseTester.SeqSmall0),
-    packed_seq_small_0_midfield: ArrayList(EnumParseTester.SeqSmall0),
-    packed_seq_small_0_hifield: ArrayList(EnumParseTester.SeqSmall0),
+    repeated_seq_small_0_lowfield: ArrayListU(EnumParseTester.SeqSmall0),
+    repeated_seq_small_0_midfield: ArrayListU(EnumParseTester.SeqSmall0),
+    repeated_seq_small_0_hifield: ArrayListU(EnumParseTester.SeqSmall0),
+    packed_seq_small_0_lowfield: ArrayListU(EnumParseTester.SeqSmall0),
+    packed_seq_small_0_midfield: ArrayListU(EnumParseTester.SeqSmall0),
+    packed_seq_small_0_hifield: ArrayListU(EnumParseTester.SeqSmall0),
     optional_seq_small_1_lowfield: ?EnumParseTester.SeqSmall1 = null,
     optional_seq_small_1_midfield: ?EnumParseTester.SeqSmall1 = null,
     optional_seq_small_1_hifield: ?EnumParseTester.SeqSmall1 = null,
-    repeated_seq_small_1_lowfield: ArrayList(EnumParseTester.SeqSmall1),
-    repeated_seq_small_1_midfield: ArrayList(EnumParseTester.SeqSmall1),
-    repeated_seq_small_1_hifield: ArrayList(EnumParseTester.SeqSmall1),
-    packed_seq_small_1_lowfield: ArrayList(EnumParseTester.SeqSmall1),
-    packed_seq_small_1_midfield: ArrayList(EnumParseTester.SeqSmall1),
-    packed_seq_small_1_hifield: ArrayList(EnumParseTester.SeqSmall1),
+    repeated_seq_small_1_lowfield: ArrayListU(EnumParseTester.SeqSmall1),
+    repeated_seq_small_1_midfield: ArrayListU(EnumParseTester.SeqSmall1),
+    repeated_seq_small_1_hifield: ArrayListU(EnumParseTester.SeqSmall1),
+    packed_seq_small_1_lowfield: ArrayListU(EnumParseTester.SeqSmall1),
+    packed_seq_small_1_midfield: ArrayListU(EnumParseTester.SeqSmall1),
+    packed_seq_small_1_hifield: ArrayListU(EnumParseTester.SeqSmall1),
     optional_seq_large_lowfield: ?EnumParseTester.SeqLarge = null,
     optional_seq_large_midfield: ?EnumParseTester.SeqLarge = null,
     optional_seq_large_hifield: ?EnumParseTester.SeqLarge = null,
-    repeated_seq_large_lowfield: ArrayList(EnumParseTester.SeqLarge),
-    repeated_seq_large_midfield: ArrayList(EnumParseTester.SeqLarge),
-    repeated_seq_large_hifield: ArrayList(EnumParseTester.SeqLarge),
-    packed_seq_large_lowfield: ArrayList(EnumParseTester.SeqLarge),
-    packed_seq_large_midfield: ArrayList(EnumParseTester.SeqLarge),
-    packed_seq_large_hifield: ArrayList(EnumParseTester.SeqLarge),
+    repeated_seq_large_lowfield: ArrayListU(EnumParseTester.SeqLarge),
+    repeated_seq_large_midfield: ArrayListU(EnumParseTester.SeqLarge),
+    repeated_seq_large_hifield: ArrayListU(EnumParseTester.SeqLarge),
+    packed_seq_large_lowfield: ArrayListU(EnumParseTester.SeqLarge),
+    packed_seq_large_midfield: ArrayListU(EnumParseTester.SeqLarge),
+    packed_seq_large_hifield: ArrayListU(EnumParseTester.SeqLarge),
     optional_arbitrary_lowfield: ?EnumParseTester.Arbitrary = null,
     optional_arbitrary_midfield: ?EnumParseTester.Arbitrary = null,
     optional_arbitrary_hifield: ?EnumParseTester.Arbitrary = null,
-    repeated_arbitrary_lowfield: ArrayList(EnumParseTester.Arbitrary),
-    repeated_arbitrary_midfield: ArrayList(EnumParseTester.Arbitrary),
-    repeated_arbitrary_hifield: ArrayList(EnumParseTester.Arbitrary),
-    packed_arbitrary_lowfield: ArrayList(EnumParseTester.Arbitrary),
-    packed_arbitrary_midfield: ArrayList(EnumParseTester.Arbitrary),
-    packed_arbitrary_hifield: ArrayList(EnumParseTester.Arbitrary),
+    repeated_arbitrary_lowfield: ArrayListU(EnumParseTester.Arbitrary),
+    repeated_arbitrary_midfield: ArrayListU(EnumParseTester.Arbitrary),
+    repeated_arbitrary_hifield: ArrayListU(EnumParseTester.Arbitrary),
+    packed_arbitrary_lowfield: ArrayListU(EnumParseTester.Arbitrary),
+    packed_arbitrary_midfield: ArrayListU(EnumParseTester.Arbitrary),
+    packed_arbitrary_hifield: ArrayListU(EnumParseTester.Arbitrary),
     other_field: ?i32 = null,
 
     pub const _desc_table = .{

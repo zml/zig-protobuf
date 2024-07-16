@@ -1,8 +1,8 @@
 const warn = @import("std").debug.warn;
 const std = @import("std");
 const pb = @import("protobuf");
-const plugin = @import("google/protobuf/compiler.pb.zig");
-const descriptor = @import("google/protobuf.pb.zig");
+const plugin = @import("google/protobuf/compiler/plugin.pb.zig");
+const descriptor = @import("google/protobuf/descriptor.pb.zig");
 const mem = std.mem;
 const FullName = @import("./FullName.zig").FullName;
 
@@ -32,7 +32,7 @@ pub fn main() !void {
 const GenerationContext = struct {
     allocator: std.mem.Allocator,
     req: plugin.CodeGeneratorRequest,
-    res: plugin.CodeGeneratorResponse = plugin.CodeGeneratorResponse.init(allocator),
+    res: plugin.CodeGeneratorResponse = plugin.CodeGeneratorResponse.init(),
 
     /// map of known packages
     known_packages: std.StringHashMap(FullName) = std.StringHashMap(FullName).init(allocator),
@@ -51,7 +51,7 @@ const GenerationContext = struct {
             if (t.package) |package| {
                 try self.known_packages.put(package.getSlice(), FullName{ .buf = package.getSlice() });
             } else {
-                self.res.@"error" = pb.ManagedString{ .Owned = .{ .str = try std.fmt.allocPrint(allocator, "ERROR Package directive missing in {?s}\n", .{file.name.?.getSlice()}), .allocator = allocator } };
+                self.res.@"error" = pb.ManagedString{ .Owned = try std.fmt.allocPrint(allocator, "ERROR Package directive missing in {?s}\n", .{file.name.?.getSlice()}) };
                 return;
             }
 
@@ -70,12 +70,12 @@ const GenerationContext = struct {
 
         var it = self.output_lists.iterator();
         while (it.next()) |entry| {
-            var ret = plugin.CodeGeneratorResponse.File.init(allocator);
+            var ret = plugin.CodeGeneratorResponse.File.init();
 
             const pb_name = try self.outputFileName(entry.key_ptr.*);
             ret.name = pb.ManagedString.move(pb_name, allocator);
             ret.content = pb.ManagedString.move(try std.mem.concat(allocator, u8, entry.value_ptr.*.items), allocator);
-            try self.res.file.append(ret);
+            try self.res.file.append(allocator, ret);
         }
 
         self.res.supported_features = @intFromEnum(plugin.CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL);
@@ -116,7 +116,7 @@ const GenerationContext = struct {
             \\ ///! package {?}
             \\const std = @import("std");
             \\const Allocator = std.mem.Allocator;
-            \\const ArrayList = std.ArrayList;
+            \\const ArrayListU = std.ArrayListUnmanaged;
             \\
             \\const protobuf = @import("protobuf");
             \\const ManagedString = protobuf.ManagedString;
@@ -177,17 +177,17 @@ const GenerationContext = struct {
     pub fn printFileDeclarations(self: *Self, fqn: FullName, file: *descriptor.FileDescriptorProto) !void {
         const list = try self.getOutputList(file);
 
-        try self.generateEnums(list, fqn, file.*, file.enum_type);
-        try self.generateMessages(list, fqn, file.*, file.message_type);
+        try self.generateEnums(list, fqn, file.*, file.enum_type.items);
+        try self.generateMessages(list, fqn, file.*, file.message_type.items);
     }
 
-    fn generateEnums(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, enums: std.ArrayList(descriptor.EnumDescriptorProto)) !void {
+    fn generateEnums(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, enums: []const descriptor.EnumDescriptorProto) !void {
         _ = file;
 
         var enum_values = std.AutoHashMap(i32, void).init(ctx.allocator);
         defer enum_values.deinit();
 
-        for (enums.items) |theEnum| {
+        for (enums) |theEnum| {
             const e: descriptor.EnumDescriptorProto = theEnum;
 
             try list.append(try std.fmt.allocPrint(allocator, "\npub const {?s} = enum(i32) {{\n", .{e.name.?.getSlice()}));
@@ -356,7 +356,7 @@ const GenerationContext = struct {
         const t = field.type.?;
 
         if (repeated) {
-            prefix = "ArrayList(";
+            prefix = "ArrayListU(";
             postfix = ")";
         } else {
             // union are already optional
@@ -555,8 +555,8 @@ const GenerationContext = struct {
         }
     }
 
-    fn generateMessages(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, messages: std.ArrayList(descriptor.DescriptorProto)) !void {
-        for (messages.items) |message| {
+    fn generateMessages(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, messages: []const descriptor.DescriptorProto) !void {
+        for (messages) |message| {
             const m: descriptor.DescriptorProto = message;
             const messageFqn = try fqn.append(allocator, m.name.?.getSlice());
 
@@ -634,8 +634,8 @@ const GenerationContext = struct {
                 \\
             );
 
-            try ctx.generateEnums(list, messageFqn, file, m.enum_type);
-            try ctx.generateMessages(list, messageFqn, file, m.nested_type);
+            try ctx.generateEnums(list, messageFqn, file, m.enum_type.items);
+            try ctx.generateMessages(list, messageFqn, file, m.nested_type.items);
 
             try list.append(try std.fmt.allocPrint(allocator,
                 \\

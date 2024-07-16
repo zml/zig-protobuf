@@ -2,7 +2,7 @@
 ///! package vector_tile
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;
@@ -13,7 +13,7 @@ test {
 }
 
 pub const Tile = struct {
-    layers: ArrayList(Tile.Layer),
+    layers: ArrayListU(Tile.Layer),
 
     pub const _desc_table = .{
         .layers = fd(3, .{ .List = .{ .SubMessage = {} } }),
@@ -51,9 +51,9 @@ pub const Tile = struct {
 
     pub const Feature = struct {
         id: ?u64 = 0,
-        tags: ArrayList(u32),
+        tags: ArrayListU(u32),
         type: ?Tile.GeomType = .UNKNOWN,
-        geometry: ArrayList(u32),
+        geometry: ArrayListU(u32),
 
         pub const _desc_table = .{
             .id = fd(1, .{ .Varint = .Simple }),
@@ -68,9 +68,9 @@ pub const Tile = struct {
     pub const Layer = struct {
         version: u32 = 1,
         name: ManagedString,
-        features: ArrayList(Tile.Feature),
-        keys: ArrayList(ManagedString),
-        values: ArrayList(Tile.Value),
+        features: ArrayListU(Tile.Feature),
+        keys: ArrayListU(ManagedString),
+        values: ArrayListU(Tile.Value),
         extent: ?u32 = 4096,
 
         pub const _desc_table = .{

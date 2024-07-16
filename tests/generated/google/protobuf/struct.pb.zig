@@ -2,7 +2,7 @@
 ///! package google.protobuf
 const std = @import("std");
 const Allocator = std.mem.Allocator;
-const ArrayList = std.ArrayList;
+const ArrayListU = std.ArrayListUnmanaged;
 
 const protobuf = @import("protobuf");
 const ManagedString = protobuf.ManagedString;
@@ -18,7 +18,7 @@ pub const NullValue = enum(i32) {
 };
 
 pub const Struct = struct {
-    fields: ArrayList(Struct.FieldsEntry),
+    fields: ArrayListU(Struct.FieldsEntry),
 
     pub const _desc_table = .{
         .fields = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -65,7 +65,7 @@ pub const Value = struct {
 };
 
 pub const ListValue = struct {
-    values: ArrayList(Value),
+    values: ArrayListU(Value),
 
     pub const _desc_table = .{
         .values = fd(1, .{ .List = .{ .SubMessage = {} } }),
