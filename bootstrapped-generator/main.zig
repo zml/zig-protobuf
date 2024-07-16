@@ -164,10 +164,11 @@ const GenerationContext = struct {
                 //     };
                 // };
                 // This is a bit more involved because we need to merge different imports in one struct.
+                const import_name = try self.importName(dep.name.?.getSlice());
                 try list.append(try std.fmt.allocPrint(self.allocator, "{s} {!s} = @import(\"{!s}\");\n", .{
                     optional_pub_directive,
-                    try self.importName(dep.name.?.getSlice()),
-                    self.resolvePath(file.name.?.getSlice(), dep.name.?.getSlice()),
+                    import_name,
+                    import_name,
                 }));
             }
         }
@@ -176,7 +177,7 @@ const GenerationContext = struct {
         return entry.value_ptr;
     }
 
-    /// resolves an import path from the file A relative to B
+    /// resolves a path B relative to A
     fn resolvePath(self: *Self, a: string, b: string) !string {
         const aPath = std.fs.path.dirname(try self.fileNameFromPackage(a)) orelse "";
         const bPath = try self.fileNameFromPackage(b);

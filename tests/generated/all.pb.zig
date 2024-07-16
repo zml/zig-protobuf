@@ -12,21 +12,21 @@ test {
     std.testing.refAllDeclsRecursive(@This());
 }
 /// import package tests
-pub const fixedsizes = @import("fixedsizes.pb.zig");
+pub const fixedsizes = @import("fixedsizes");
 /// import package vector_tile
-pub const mapbox = @import("mapbox.pb.zig");
+pub const mapbox = @import("mapbox");
 /// import package jspb.test
-pub const jspb = @import("jspb.pb.zig");
+pub const jspb = @import("jspb");
 /// import package protobuf_test_messages.proto3
-const test_messages_proto3 = @import("test_messages_proto3.pb.zig");
+const test_messages_proto3 = @import("test_messages_proto3");
 /// import package unittest
-const unittest = @import("unittest.pb.zig");
+const unittest = @import("unittest");
 /// import package graphics
-const graphics = @import("graphics.pb.zig");
+const graphics = @import("graphics");
 /// import package tests.oneof
-const oneof = @import("oneof.pb.zig");
+const oneof = @import("oneof");
 /// import package tests.longs
-const msg_long = @import("msg-long.pb.zig");
+const msg_long = @import("msg_long");
 
 pub const TopLevelEnum = enum(i32) {
     SE_ZERO = 0,

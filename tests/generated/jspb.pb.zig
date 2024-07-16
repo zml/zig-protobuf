@@ -12,7 +12,7 @@ test {
     std.testing.refAllDeclsRecursive(@This());
 }
 /// import package google.protobuf
-const google_protobuf_descriptor = @import("google/protobuf/descriptor.pb.zig");
+const google_protobuf_descriptor = @import("google_protobuf_descriptor");
 
 pub const OuterEnum = enum(i32) {
     FOO = 1,
