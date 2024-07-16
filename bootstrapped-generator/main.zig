@@ -201,17 +201,28 @@ const GenerationContext = struct {
     }
 
     fn generateEnums(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, enums: std.ArrayList(descriptor.EnumDescriptorProto)) !void {
-        _ = ctx;
         _ = file;
+
         _ = fqn;
+        var enum_values = std.AutoHashMap(i32, void).init(ctx.allocator);
+        defer enum_values.deinit();
 
         for (enums.items) |theEnum| {
             const e: descriptor.EnumDescriptorProto = theEnum;
 
             try list.append(try std.fmt.allocPrint(allocator, "\npub const {?s} = enum(i32) {{\n", .{e.name.?.getSlice()}));
 
+            enum_values.clearRetainingCapacity();
+            try enum_values.ensureTotalCapacity(@intCast(e.value.items.len));
             for (e.value.items) |elem| {
-                try list.append(try std.fmt.allocPrint(allocator, "   {?s} = {},\n", .{ elem.name.?.getSlice(), elem.number orelse 0 }));
+                const val = elem.number orelse 0;
+                const res = try enum_values.getOrPut(val);
+                if (res.found_existing) {
+                    std.log.warn("ignoring duplicate name for enum value.", .{});
+                } else {
+                    try list.append(try std.fmt.allocPrint(allocator, "   {?s} = {},\n", .{ elem.name.?.getSlice(), val }));
+                    res.key_ptr.* = val;
+                }
             }
 
             try list.append("    _,\n};\n\n");
