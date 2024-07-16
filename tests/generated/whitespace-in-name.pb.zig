@@ -13,10 +13,10 @@ test {
 }
 
 pub const WouldYouParseThisForMePlease = struct {
-    field: ?Test = null,
+    field: ?*const Test = null,
 
     pub const _desc_table = .{
-        .field = fd(1, .{ .SubMessage = {} }),
+        .field = fd(1, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

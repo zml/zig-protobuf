@@ -15,7 +15,7 @@ test "leak in allocated string" {
     // allocate a "dynamic" string
     const allocated = try testing.allocator.dupe(u8, "asd");
     // copy the allocated string
-    demo.field = .{ .field = try protobuf.ManagedString.copy(allocated, testing.allocator) };
+    demo.field = &.{ .field = try protobuf.ManagedString.copy(allocated, testing.allocator) };
     // release the allocated string immediately
     testing.allocator.free(allocated);
 

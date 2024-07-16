@@ -88,14 +88,14 @@ pub const SpecialCases = struct {
 pub const OptionalFields = struct {
     a_string: ?ManagedString = null,
     a_bool: bool,
-    a_nested_message: ?OptionalFields.Nested = null,
+    a_nested_message: ?*const OptionalFields.Nested = null,
     a_repeated_message: ArrayList(OptionalFields.Nested),
     a_repeated_string: ArrayList(ManagedString),
 
     pub const _desc_table = .{
         .a_string = fd(1, .String),
         .a_bool = fd(2, .{ .Varint = .Simple }),
-        .a_nested_message = fd(3, .{ .SubMessage = {} }),
+        .a_nested_message = fd(3, .{ .AllocMessage = {} }),
         .a_repeated_message = fd(4, .{ .List = .{ .SubMessage = {} } }),
         .a_repeated_string = fd(5, .{ .List = .String }),
     };
@@ -130,14 +130,14 @@ pub const HasExtensions = struct {
 pub const Complex = struct {
     a_string: ManagedString,
     an_out_of_order_bool: bool,
-    a_nested_message: ?Complex.Nested = null,
+    a_nested_message: ?*const Complex.Nested = null,
     a_repeated_message: ArrayList(Complex.Nested),
     a_repeated_string: ArrayList(ManagedString),
 
     pub const _desc_table = .{
         .a_string = fd(1, .String),
         .an_out_of_order_bool = fd(9, .{ .Varint = .Simple }),
-        .a_nested_message = fd(4, .{ .SubMessage = {} }),
+        .a_nested_message = fd(4, .{ .AllocMessage = {} }),
         .a_repeated_message = fd(5, .{ .List = .{ .SubMessage = {} } }),
         .a_repeated_string = fd(7, .{ .List = .String }),
     };
@@ -223,14 +223,14 @@ pub const FloatingPointFields = struct {
 
 pub const TestClone = struct {
     str: ?ManagedString = null,
-    simple1: ?Simple1 = null,
+    simple1: ?*const Simple1 = null,
     simple2: ArrayList(Simple1),
     bytes_field: ?ManagedString = null,
     unused: ?ManagedString = null,
 
     pub const _desc_table = .{
         .str = fd(1, .String),
-        .simple1 = fd(3, .{ .SubMessage = {} }),
+        .simple1 = fd(3, .{ .AllocMessage = {} }),
         .simple2 = fd(5, .{ .List = .{ .SubMessage = {} } }),
         .bytes_field = fd(6, .String),
         .unused = fd(7, .String),
@@ -251,13 +251,13 @@ pub const CloneExtension = struct {
 
 pub const TestGroup = struct {
     id: ?ManagedString = null,
-    required_simple: ?Simple2 = null,
-    optional_simple: ?Simple2 = null,
+    required_simple: ?*const Simple2 = null,
+    optional_simple: ?*const Simple2 = null,
 
     pub const _desc_table = .{
         .id = fd(6, .String),
-        .required_simple = fd(7, .{ .SubMessage = {} }),
-        .optional_simple = fd(8, .{ .SubMessage = {} }),
+        .required_simple = fd(7, .{ .AllocMessage = {} }),
+        .optional_simple = fd(8, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -291,10 +291,10 @@ pub const TestMessageWithOneof = struct {
         };
     },
     recursive_oneof: ?union(enum) {
-        rone: TestMessageWithOneof,
+        rone: *const TestMessageWithOneof,
         rtwo: ManagedString,
         pub const _union_desc = .{
-            .rone = fd(6, .{ .SubMessage = {} }),
+            .rone = fd(6, .{ .AllocMessage = {} }),
             .rtwo = fd(7, .String),
         };
     },
@@ -350,7 +350,7 @@ pub const TestMapFieldsNoBinary = struct {
     map_int32_string: ArrayList(TestMapFieldsNoBinary.MapInt32StringEntry),
     map_int64_string: ArrayList(TestMapFieldsNoBinary.MapInt64StringEntry),
     map_bool_string: ArrayList(TestMapFieldsNoBinary.MapBoolStringEntry),
-    test_map_fields: ?TestMapFieldsNoBinary = null,
+    test_map_fields: ?*const TestMapFieldsNoBinary = null,
     map_string_testmapfields: ArrayList(TestMapFieldsNoBinary.MapStringTestmapfieldsEntry),
 
     pub const _desc_table = .{
@@ -364,7 +364,7 @@ pub const TestMapFieldsNoBinary = struct {
         .map_int32_string = fd(8, .{ .List = .{ .SubMessage = {} } }),
         .map_int64_string = fd(9, .{ .List = .{ .SubMessage = {} } }),
         .map_bool_string = fd(10, .{ .List = .{ .SubMessage = {} } }),
-        .test_map_fields = fd(11, .{ .SubMessage = {} }),
+        .test_map_fields = fd(11, .{ .AllocMessage = {} }),
         .map_string_testmapfields = fd(12, .{ .List = .{ .SubMessage = {} } }),
     };
 
@@ -442,11 +442,11 @@ pub const TestMapFieldsNoBinary = struct {
 
     pub const MapStringMsgEntry = struct {
         key: ?ManagedString = null,
-        value: ?MapValueMessageNoBinary = null,
+        value: ?*const MapValueMessageNoBinary = null,
 
         pub const _desc_table = .{
             .key = fd(1, .String),
-            .value = fd(2, .{ .SubMessage = {} }),
+            .value = fd(2, .{ .AllocMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());
@@ -490,11 +490,11 @@ pub const TestMapFieldsNoBinary = struct {
 
     pub const MapStringTestmapfieldsEntry = struct {
         key: ?ManagedString = null,
-        value: ?TestMapFieldsNoBinary = null,
+        value: ?*const TestMapFieldsNoBinary = null,
 
         pub const _desc_table = .{
             .key = fd(1, .String),
-            .value = fd(2, .{ .SubMessage = {} }),
+            .value = fd(2, .{ .AllocMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());

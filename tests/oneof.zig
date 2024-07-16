@@ -96,7 +96,7 @@ test "oneof encode/decode submessage" {
     var demo = tests_oneof.OneofContainer.init(testing.allocator);
     defer demo.deinit();
 
-    demo.some_oneof = .{ .message_in_oneof = .{ .value = 1, .str = protobuf.ManagedString.static("123") } };
+    demo.some_oneof = .{ .message_in_oneof = &.{ .value = 1, .str = protobuf.ManagedString.static("123") } };
 
     {
         // duplicate the one-of and deep compare

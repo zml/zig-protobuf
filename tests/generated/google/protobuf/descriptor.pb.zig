@@ -32,8 +32,8 @@ pub const FileDescriptorProto = struct {
     enum_type: ArrayList(EnumDescriptorProto),
     service: ArrayList(ServiceDescriptorProto),
     extension: ArrayList(FieldDescriptorProto),
-    options: ?FileOptions = null,
-    source_code_info: ?SourceCodeInfo = null,
+    options: ?*const FileOptions = null,
+    source_code_info: ?*const SourceCodeInfo = null,
     syntax: ?ManagedString = null,
     edition: ?ManagedString = null,
 
@@ -47,8 +47,8 @@ pub const FileDescriptorProto = struct {
         .enum_type = fd(5, .{ .List = .{ .SubMessage = {} } }),
         .service = fd(6, .{ .List = .{ .SubMessage = {} } }),
         .extension = fd(7, .{ .List = .{ .SubMessage = {} } }),
-        .options = fd(8, .{ .SubMessage = {} }),
-        .source_code_info = fd(9, .{ .SubMessage = {} }),
+        .options = fd(8, .{ .AllocMessage = {} }),
+        .source_code_info = fd(9, .{ .AllocMessage = {} }),
         .syntax = fd(12, .String),
         .edition = fd(13, .String),
     };
@@ -64,7 +64,7 @@ pub const DescriptorProto = struct {
     enum_type: ArrayList(EnumDescriptorProto),
     extension_range: ArrayList(DescriptorProto.ExtensionRange),
     oneof_decl: ArrayList(OneofDescriptorProto),
-    options: ?MessageOptions = null,
+    options: ?*const MessageOptions = null,
     reserved_range: ArrayList(DescriptorProto.ReservedRange),
     reserved_name: ArrayList(ManagedString),
 
@@ -76,7 +76,7 @@ pub const DescriptorProto = struct {
         .enum_type = fd(4, .{ .List = .{ .SubMessage = {} } }),
         .extension_range = fd(5, .{ .List = .{ .SubMessage = {} } }),
         .oneof_decl = fd(8, .{ .List = .{ .SubMessage = {} } }),
-        .options = fd(7, .{ .SubMessage = {} }),
+        .options = fd(7, .{ .AllocMessage = {} }),
         .reserved_range = fd(9, .{ .List = .{ .SubMessage = {} } }),
         .reserved_name = fd(10, .{ .List = .String }),
     };
@@ -84,12 +84,12 @@ pub const DescriptorProto = struct {
     pub const ExtensionRange = struct {
         start: ?i32 = null,
         end: ?i32 = null,
-        options: ?ExtensionRangeOptions = null,
+        options: ?*const ExtensionRangeOptions = null,
 
         pub const _desc_table = .{
             .start = fd(1, .{ .Varint = .Simple }),
             .end = fd(2, .{ .Varint = .Simple }),
-            .options = fd(3, .{ .SubMessage = {} }),
+            .options = fd(3, .{ .AllocMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());
@@ -160,7 +160,7 @@ pub const FieldDescriptorProto = struct {
     default_value: ?ManagedString = null,
     oneof_index: ?i32 = null,
     json_name: ?ManagedString = null,
-    options: ?FieldOptions = null,
+    options: ?*const FieldOptions = null,
     proto3_optional: ?bool = null,
 
     pub const _desc_table = .{
@@ -173,7 +173,7 @@ pub const FieldDescriptorProto = struct {
         .default_value = fd(7, .String),
         .oneof_index = fd(9, .{ .Varint = .Simple }),
         .json_name = fd(10, .String),
-        .options = fd(8, .{ .SubMessage = {} }),
+        .options = fd(8, .{ .AllocMessage = {} }),
         .proto3_optional = fd(17, .{ .Varint = .Simple }),
     };
 
@@ -211,11 +211,11 @@ pub const FieldDescriptorProto = struct {
 
 pub const OneofDescriptorProto = struct {
     name: ?ManagedString = null,
-    options: ?OneofOptions = null,
+    options: ?*const OneofOptions = null,
 
     pub const _desc_table = .{
         .name = fd(1, .String),
-        .options = fd(2, .{ .SubMessage = {} }),
+        .options = fd(2, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -224,14 +224,14 @@ pub const OneofDescriptorProto = struct {
 pub const EnumDescriptorProto = struct {
     name: ?ManagedString = null,
     value: ArrayList(EnumValueDescriptorProto),
-    options: ?EnumOptions = null,
+    options: ?*const EnumOptions = null,
     reserved_range: ArrayList(EnumDescriptorProto.EnumReservedRange),
     reserved_name: ArrayList(ManagedString),
 
     pub const _desc_table = .{
         .name = fd(1, .String),
         .value = fd(2, .{ .List = .{ .SubMessage = {} } }),
-        .options = fd(3, .{ .SubMessage = {} }),
+        .options = fd(3, .{ .AllocMessage = {} }),
         .reserved_range = fd(4, .{ .List = .{ .SubMessage = {} } }),
         .reserved_name = fd(5, .{ .List = .String }),
     };
@@ -254,12 +254,12 @@ pub const EnumDescriptorProto = struct {
 pub const EnumValueDescriptorProto = struct {
     name: ?ManagedString = null,
     number: ?i32 = null,
-    options: ?EnumValueOptions = null,
+    options: ?*const EnumValueOptions = null,
 
     pub const _desc_table = .{
         .name = fd(1, .String),
         .number = fd(2, .{ .Varint = .Simple }),
-        .options = fd(3, .{ .SubMessage = {} }),
+        .options = fd(3, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -268,12 +268,12 @@ pub const EnumValueDescriptorProto = struct {
 pub const ServiceDescriptorProto = struct {
     name: ?ManagedString = null,
     method: ArrayList(MethodDescriptorProto),
-    options: ?ServiceOptions = null,
+    options: ?*const ServiceOptions = null,
 
     pub const _desc_table = .{
         .name = fd(1, .String),
         .method = fd(2, .{ .List = .{ .SubMessage = {} } }),
-        .options = fd(3, .{ .SubMessage = {} }),
+        .options = fd(3, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -283,7 +283,7 @@ pub const MethodDescriptorProto = struct {
     name: ?ManagedString = null,
     input_type: ?ManagedString = null,
     output_type: ?ManagedString = null,
-    options: ?MethodOptions = null,
+    options: ?*const MethodOptions = null,
     client_streaming: ?bool = false,
     server_streaming: ?bool = false,
 
@@ -291,7 +291,7 @@ pub const MethodDescriptorProto = struct {
         .name = fd(1, .String),
         .input_type = fd(2, .String),
         .output_type = fd(3, .String),
-        .options = fd(4, .{ .SubMessage = {} }),
+        .options = fd(4, .{ .AllocMessage = {} }),
         .client_streaming = fd(5, .{ .Varint = .Simple }),
         .server_streaming = fd(6, .{ .Varint = .Simple }),
     };

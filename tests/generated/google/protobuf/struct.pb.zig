@@ -26,11 +26,11 @@ pub const Struct = struct {
 
     pub const FieldsEntry = struct {
         key: ManagedString = .Empty,
-        value: ?Value = null,
+        value: ?*const Value = null,
 
         pub const _desc_table = .{
             .key = fd(1, .String),
-            .value = fd(2, .{ .SubMessage = {} }),
+            .value = fd(2, .{ .AllocMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());
@@ -45,15 +45,15 @@ pub const Value = struct {
         number_value: f64,
         string_value: ManagedString,
         bool_value: bool,
-        struct_value: Struct,
-        list_value: ListValue,
+        struct_value: *const Struct,
+        list_value: *const ListValue,
         pub const _union_desc = .{
             .null_value = fd(1, .{ .Varint = .Simple }),
             .number_value = fd(2, .{ .FixedInt = .I64 }),
             .string_value = fd(3, .String),
             .bool_value = fd(4, .{ .Varint = .Simple }),
-            .struct_value = fd(5, .{ .SubMessage = {} }),
-            .list_value = fd(6, .{ .SubMessage = {} }),
+            .struct_value = fd(5, .{ .AllocMessage = {} }),
+            .list_value = fd(6, .{ .AllocMessage = {} }),
         };
     },
 

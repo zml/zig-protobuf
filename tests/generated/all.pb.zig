@@ -137,10 +137,10 @@ pub const UnPacked = struct {
 };
 
 pub const WithSubmessages = struct {
-    with_enum: ?WithEnum = null,
+    with_enum: ?*const WithEnum = null,
 
     pub const _desc_table = .{
-        .with_enum = fd(1, .{ .SubMessage = {} }),
+        .with_enum = fd(1, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -167,10 +167,10 @@ pub const WithRepeatedStrings = struct {
 };
 
 pub const WithDeps = struct {
-    fixed: ?fixedsizes_proto.FixedSizes = null,
+    fixed: ?*const fixedsizes_proto.FixedSizes = null,
 
     pub const _desc_table = .{
-        .fixed = fd(1, .{ .SubMessage = {} }),
+        .fixed = fd(1, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

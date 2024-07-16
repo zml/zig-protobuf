@@ -89,7 +89,7 @@ pub const ManagedString = union(ManagedStringTag) {
 };
 
 /// Enum describing the different field types available.
-pub const FieldTypeTag = enum { Varint, FixedInt, SubMessage, String, List, PackedList, OneOf };
+pub const FieldTypeTag = enum { Varint, FixedInt, SubMessage, AllocMessage, String, List, PackedList, OneOf };
 
 /// Enum describing how much bits a FixedInt will use.
 pub const FixedSize = enum(u3) { I64 = 1, I32 = 5 };
@@ -115,6 +115,7 @@ pub const FieldType = union(FieldTypeTag) {
     Varint: VarintType,
     FixedInt: FixedSize,
     SubMessage,
+    AllocMessage,
     String,
     List: ListType,
     PackedList: ListType,
@@ -125,7 +126,7 @@ pub const FieldType = union(FieldTypeTag) {
         return switch (ftype) {
             .Varint => 0,
             .FixedInt => |size| @intFromEnum(size),
-            .String, .SubMessage, .PackedList => 2,
+            .String, .SubMessage, .AllocMessage, .PackedList => 2,
             .List => |inner| switch (inner) {
                 .Varint => 0,
                 .FixedInt => |size| @intFromEnum(size),
@@ -347,6 +348,12 @@ fn append(pb: *ArrayList(u8), comptime field: FieldDescriptor, value: anytype, c
                 try append_submessage(pb, value);
             }
         },
+        .AllocMessage => {
+            if (!is_default_scalar_value or force_append) {
+                try append_tag(pb, field);
+                try append_submessage(pb, value.*);
+            }
+        },
         .String => {
             if (!is_default_scalar_value or force_append) {
                 try append_tag(pb, field);
@@ -408,10 +415,16 @@ fn append(pb: *ArrayList(u8), comptime field: FieldDescriptor, value: anytype, c
 /// Internal function that decodes the descriptor information and struct fields
 /// before passing them to the append function
 fn internal_pb_encode(pb: *ArrayList(u8), data: anytype) !void {
-    const field_list = @typeInfo(@TypeOf(data)).Struct.fields;
+    const fields = switch (@typeInfo(@TypeOf(data))) {
+        .Struct => |info| info.fields,
+        else => blk: {
+            @compileLog(data);
+            break :blk &.{};
+        },
+    };
     const data_type = @TypeOf(data);
 
-    inline for (field_list) |field| {
+    inline for (fields) |field| {
         if (@typeInfo(field.type) == .Optional) {
             if (@field(data, field.name)) |value| {
                 try append(pb, @field(data_type._desc_table, field.name), value, true);
@@ -458,6 +471,9 @@ pub fn pb_init(comptime T: type, allocator: Allocator) T {
                     @field(value, field.name) = get_field_default_value(field.type);
                 }
             },
+            .AllocMessage => {
+                @field(value, field.name) = null;
+            },
             .SubMessage => {
                 @field(value, field.name) = null;
             },
@@ -487,29 +503,29 @@ pub fn pb_dupe(comptime T: type, original: T, allocator: Allocator) !T {
 
 /// Internal dupe function for a specific field
 fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype: FieldType, allocator: Allocator) Allocator.Error!@TypeOf(@field(original, field_name)) {
-    switch (ftype) {
-        .Varint, .FixedInt => {
-            return @field(original, field_name);
-        },
+    const field = @field(original, field_name);
+    const T = @TypeOf(field);
+    return switch (ftype) {
+        .Varint, .FixedInt => field,
         .List => |list_type| {
-            const capacity = @field(original, field_name).items.len;
-            var list = try @TypeOf(@field(original, field_name)).initCapacity(allocator, capacity);
+            const capacity = field.items.len;
+            var list = try T.initCapacity(allocator, capacity);
             if (list_type == .SubMessage or list_type == .String) {
-                for (@field(original, field_name).items) |item| {
+                for (field.items) |item| {
                     try list.append(try item.dupe(allocator));
                 }
             } else {
-                for (@field(original, field_name).items) |item| {
+                for (field.items) |item| {
                     try list.append(item);
                 }
             }
             return list;
         },
         .PackedList => |_| {
-            const capacity = @field(original, field_name).items.len;
-            var list = try @TypeOf(@field(original, field_name)).initCapacity(allocator, capacity);
+            const capacity = field.items.len;
+            var list = try T.initCapacity(allocator, capacity);
 
-            for (@field(original, field_name).items) |item| {
+            for (field.items) |item| {
                 try list.append(item);
             }
 
@@ -527,6 +543,23 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
                 else => return try @field(original, field_name).dupe(allocator),
             }
         },
+        .AllocMessage => switch (@typeInfo(T)) {
+            .Optional => {
+                if (field) |val| {
+                    const res = try allocator.create(@TypeOf(val.*));
+                    res.* = try val.dupe(allocator);
+                    return res;
+                } else {
+                    return null;
+                }
+            },
+            .Pointer => {
+                const res = try allocator.create(@TypeOf(field.*));
+                res.* = try field.dupe(allocator);
+                return res;
+            },
+            else => @compileLog("dupe_field", ftype, field_name, T),
+        },
         .OneOf => |one_of| {
             // if the value is set, inline-iterate over the possible OneOfs
             if (@field(original, field_name)) |union_value| {
@@ -543,7 +576,7 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
             }
             return null;
         },
-    }
+    };
 }
 
 /// Generic deinit function. Properly initialise any field required. Meant to be embedded in generated structs.
@@ -569,6 +602,9 @@ fn deinit_field(result: anytype, comptime field_name: []const u8, comptime ftype
                 .Struct => @field(result, field_name).deinit(),
                 else => @compileError("unreachable"),
             }
+        },
+        .AllocMessage => {
+            // Note: we aren't able to track per message alloc.
         },
         .List => |list_type| {
             if (list_type == .SubMessage or list_type == .String) {
@@ -865,6 +901,18 @@ fn decode_value(comptime decoded_type: type, comptime ftype: FieldType, extracte
             .Slice => |slice| try pb_decode(decoded_type, slice, allocator),
             else => error.InvalidInput,
         },
+        .AllocMessage => switch (extracted_data.data) {
+            .Slice => |slice| switch (@typeInfo(decoded_type)) {
+                .Pointer => |info| {
+                    const res = try allocator.create(info.child);
+                    res.* = try pb_decode(info.child, slice, allocator);
+                    return res;
+                },
+                .Struct => try pb_decode(decoded_type, slice, allocator),
+                else => @compileError("Invalid message type: " ++ @typeName(decoded_type)),
+            },
+            else => error.InvalidInput,
+        },
         .String => switch (extracted_data.data) {
             .Slice => |slice| try ManagedString.copy(slice, allocator),
             else => error.InvalidInput,
@@ -876,7 +924,18 @@ fn decode_value(comptime decoded_type: type, comptime ftype: FieldType, extracte
     };
 }
 
-fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime field: StructField, result: *T, extracted_data: Extracted, allocator: Allocator) !void {
+fn Unwrap(comptime T: type) type {
+    return switch (@typeInfo(T)) {
+        .Optional => |opt| switch (@typeInfo(opt.child)) {
+            .Pointer => |ptr| ptr.child,
+            else => |child| child,
+        },
+        .Pointer => |ptr| ptr.child,
+        else => @compileError(@typeName(T) ++ " isn't wrapped"),
+    };
+}
+
+fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime field: StructField, result: *T, extracted_data: Extracted, allocator: Allocator) UnionDecodingError!void {
     switch (field_desc.ftype) {
         .Varint, .FixedInt, .SubMessage, .String => {
             // first try to release the current value
@@ -888,25 +947,33 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
                 else => @field(result, field.name) = try decode_value(field.type, field_desc.ftype, extracted_data, allocator),
             }
         },
+        .AllocMessage => {
+            // apply the new value
+            const Data = Unwrap(field.type);
+            const data_ptr = try allocator.create(Data);
+            data_ptr.* = try decode_value(Data, field_desc.ftype, extracted_data, allocator);
+            @field(result, field.name) = data_ptr;
+        },
         .List, .PackedList => |list_type| {
-            const child_type = @typeInfo(@TypeOf(@field(result, field.name).items)).Pointer.child;
+            var res_field = &@field(result, field.name);
+            const child_type = @typeInfo(@TypeOf(res_field.items)).Pointer.child;
 
             switch (list_type) {
                 .Varint => |varint_type| {
                     switch (extracted_data.data) {
-                        .RawValue => |value| try @field(result, field.name).append(decode_varint_value(child_type, varint_type, value)),
+                        .RawValue => |value| try res_field.append(decode_varint_value(child_type, varint_type, value)),
                         .Slice => |slice| try decode_packed_list(slice, list_type, child_type, &@field(result, field.name), allocator),
                     }
                 },
                 .FixedInt => |_| {
                     switch (extracted_data.data) {
-                        .RawValue => |value| try @field(result, field.name).append(decode_fixed_value(child_type, value)),
-                        .Slice => |slice| try decode_packed_list(slice, list_type, child_type, &@field(result, field.name), allocator),
+                        .RawValue => |value| try res_field.append(decode_fixed_value(child_type, value)),
+                        .Slice => |slice| try decode_packed_list(slice, list_type, child_type, res_field, allocator),
                     }
                 },
                 .SubMessage => switch (extracted_data.data) {
                     .Slice => |slice| {
-                        try @field(result, field.name).append(try child_type.decode(slice, allocator));
+                        try res_field.append(try child_type.decode(slice, allocator));
                     },
                     .RawValue => return error.InvalidInput,
                 },
@@ -955,7 +1022,7 @@ inline fn is_tag_known(comptime field_desc: FieldDescriptor, tag_to_check: Extra
 
 /// public decoding function meant to be embedded in message structures
 /// Iterates over the input and try to fill the resulting structure accordingly.
-pub fn pb_decode(comptime T: type, input: []const u8, allocator: Allocator) !T {
+pub fn pb_decode(comptime T: type, input: []const u8, allocator: Allocator) UnionDecodingError!T {
     var result = pb_init(T, allocator);
 
     var iterator = WireDecoderIterator{ .input = input };

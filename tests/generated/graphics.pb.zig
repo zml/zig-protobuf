@@ -127,8 +127,8 @@ pub const StoredChunk = struct {
 pub const MapEntity = struct {
     x: i32 = 0,
     y: i32 = 0,
-    light: ?Light = null,
-    collider: ?Shape = null,
+    light: ?*const Light = null,
+    collider: ?*const Shape = null,
     graphic_id: i32 = 0,
     entity_id: ManagedString = .Empty,
     vertical_graphic: bool = false,
@@ -136,8 +136,8 @@ pub const MapEntity = struct {
     pub const _desc_table = .{
         .x = fd(1, .{ .Varint = .Simple }),
         .y = fd(2, .{ .Varint = .Simple }),
-        .light = fd(3, .{ .SubMessage = {} }),
-        .collider = fd(4, .{ .SubMessage = {} }),
+        .light = fd(3, .{ .AllocMessage = {} }),
+        .collider = fd(4, .{ .AllocMessage = {} }),
         .graphic_id = fd(5, .{ .Varint = .Simple }),
         .entity_id = fd(6, .String),
         .vertical_graphic = fd(7, .{ .Varint = .Simple }),
@@ -201,7 +201,7 @@ pub const Npc = struct {
     max_strenght: i32 = 0,
     skills: ArrayList(Npc.SkillsEntry),
     abilities: ArrayList(Npc.AbilitiesEntry),
-    visual: ?Character = null,
+    visual: ?*const Character = null,
 
     pub const _desc_table = .{
         .x = fd(1, .{ .Varint = .Simple }),
@@ -218,7 +218,7 @@ pub const Npc = struct {
         .max_strenght = fd(12, .{ .Varint = .Simple }),
         .skills = fd(13, .{ .List = .{ .SubMessage = {} } }),
         .abilities = fd(14, .{ .List = .{ .SubMessage = {} } }),
-        .visual = fd(15, .{ .SubMessage = {} }),
+        .visual = fd(15, .{ .AllocMessage = {} }),
     };
 
     pub const SkillsEntry = struct {
@@ -354,9 +354,9 @@ pub const Texture = struct {
     emmisive: ManagedString = .Empty,
     width: i32 = 0,
     height: i32 = 0,
-    dxt1: ?SubTexture = null,
-    dxt3: ?SubTexture = null,
-    dxt5: ?SubTexture = null,
+    dxt1: ?*const SubTexture = null,
+    dxt3: ?*const SubTexture = null,
+    dxt5: ?*const SubTexture = null,
 
     pub const _desc_table = .{
         .diffuse = fd(1, .String),
@@ -364,9 +364,9 @@ pub const Texture = struct {
         .emmisive = fd(3, .String),
         .width = fd(4, .{ .Varint = .Simple }),
         .height = fd(5, .{ .Varint = .Simple }),
-        .dxt1 = fd(6, .{ .SubMessage = {} }),
-        .dxt3 = fd(7, .{ .SubMessage = {} }),
-        .dxt5 = fd(8, .{ .SubMessage = {} }),
+        .dxt1 = fd(6, .{ .AllocMessage = {} }),
+        .dxt3 = fd(7, .{ .AllocMessage = {} }),
+        .dxt5 = fd(8, .{ .AllocMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -376,11 +376,11 @@ pub const Graphic = struct {
     id: i32 = 0,
     name: ManagedString = .Empty,
     type: ?union(enum) {
-        sprite: Sprite,
-        animation: Animation,
+        sprite: *const Sprite,
+        animation: *const Animation,
         pub const _union_desc = .{
-            .sprite = fd(2, .{ .SubMessage = {} }),
-            .animation = fd(3, .{ .SubMessage = {} }),
+            .sprite = fd(2, .{ .AllocMessage = {} }),
+            .animation = fd(3, .{ .AllocMessage = {} }),
         };
     },
 

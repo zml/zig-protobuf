@@ -335,7 +335,7 @@ const GenerationContext = struct {
         return r;
     }
 
-    fn isRepeated(_: *Self, field: descriptor.FieldDescriptorProto) bool {
+    fn isRepeated(field: descriptor.FieldDescriptorProto) bool {
         if (field.label) |l| {
             return l == .LABEL_REPEATED;
         } else {
@@ -367,7 +367,7 @@ const GenerationContext = struct {
         return default;
     }
 
-    fn isOptional(_: *Self, file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto) bool {
+    fn isOptional(file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto) bool {
         if (is_proto3_file(file)) {
             return field.proto3_optional == true;
         }
@@ -382,22 +382,22 @@ const GenerationContext = struct {
     fn getFieldType(ctx: *Self, fqn: FullName, file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto, is_union: bool) !string {
         var prefix: string = "";
         var postfix: string = "";
-        const repeated = ctx.isRepeated(field);
+        const repeated = isRepeated(field);
         const t = field.type.?;
 
-        if (!repeated) {
-            if (!is_union) {
-                // look for optional types
-                switch (t) {
-                    .TYPE_MESSAGE => prefix = "?",
-                    else => if (ctx.isOptional(file, field)) {
-                        prefix = "?";
-                    },
-                }
-            }
-        } else {
+        if (repeated) {
             prefix = "ArrayList(";
             postfix = ")";
+        } else {
+            // union are already optional
+            if (ctx.isBasicType(field)) {
+                if (isOptional(file, field) and !is_union) {
+                    prefix = "?";
+                }
+            } else {
+                // union are already optional
+                prefix = if (is_union) "* const " else "?* const ";
+            }
         }
 
         const infix: string = switch (t) {
@@ -419,9 +419,26 @@ const GenerationContext = struct {
         return try std.mem.concat(allocator, u8, &.{ prefix, infix, postfix });
     }
 
+    fn isBasicType(ctx: Self, field: descriptor.FieldDescriptorProto) bool {
+        _ = ctx; // for now we don't use ctx but we need to to find simple types.
+        // Repeated fields are just pointer.
+        if (isRepeated(field)) return true;
+
+        return switch (field.type.?) {
+            .TYPE_SINT32, .TYPE_SFIXED32, .TYPE_INT32, .TYPE_UINT32, .TYPE_FIXED32, .TYPE_INT64, .TYPE_SINT64, .TYPE_SFIXED64, .TYPE_UINT64, .TYPE_FIXED64, .TYPE_BOOL, .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_STRING, .TYPE_BYTES, .TYPE_ENUM => true,
+            // TODO: we could be more fine-grained here, and allow simple messages to be treated differently.
+            .TYPE_MESSAGE => false,
+            else => |t| {
+                std.debug.print("Unrecognized type {}\n", .{t});
+                @panic("Unrecognized type");
+            },
+        };
+    }
+
     fn getFieldDefault(ctx: *Self, field: descriptor.FieldDescriptorProto, file: descriptor.FileDescriptorProto, nullable: bool) !?string {
+        _ = ctx; // autofix
         // ArrayLists need to be initialized
-        const repeated = ctx.isRepeated(field);
+        const repeated = isRepeated(field);
         if (repeated) return null;
 
         const is_proto3 = is_proto3_file(file);
@@ -474,7 +491,7 @@ const GenerationContext = struct {
 
         var postfix: string = "";
 
-        if (ctx.isRepeated(field)) {
+        if (isRepeated(field)) {
             if (ctx.isPacked(file, field)) {
                 prefix = ".{ .PackedList = ";
             } else {
@@ -489,7 +506,7 @@ const GenerationContext = struct {
             .TYPE_ENUM, .TYPE_UINT32, .TYPE_UINT64, .TYPE_BOOL, .TYPE_INT32, .TYPE_INT64 => ".{ .Varint = .Simple }",
             .TYPE_SINT32, .TYPE_SINT64 => ".{ .Varint = .ZigZagOptimized }",
             .TYPE_STRING, .TYPE_BYTES => ".String",
-            .TYPE_MESSAGE => ".{ .SubMessage = {} }",
+            .TYPE_MESSAGE => if (ctx.isBasicType(field) or isRepeated(field)) ".{ .SubMessage = {} }" else ".{ .AllocMessage = {} }",
             else => {
                 std.debug.print("Unrecognized type {}\n", .{field.type.?});
                 @panic("Unrecognized type");
@@ -510,10 +527,9 @@ const GenerationContext = struct {
     fn generateFieldDeclaration(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, message: descriptor.DescriptorProto, field: descriptor.FieldDescriptorProto, is_union: bool) !void {
         _ = message;
 
-        // std.log.info("- new field: {?}: {?}", .{field.name, field.type_name});
         const type_str = try ctx.getFieldType(fqn, file, field, is_union);
         const field_name = try ctx.getFieldName(field);
-        // if (std.mem.eql(u8, field_name, "x")) std.log.debug("{s}: {s},", .{field_name, type_str});
+
         const nullable = type_str[0] == '?';
 
         if (try ctx.getFieldDefault(field, file, nullable)) |default_value| {

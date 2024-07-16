@@ -21,7 +21,7 @@ test "long package" {
     // - this test allocates an object only. used to instruct zig to try to compile the file
     // - it also ensures that SubMessage deinit() works
     var demo = longName.WouldYouParseThisForMePlease.init(testing.allocator);
-    demo.field = .{ .field = .{ .Const = "asd" } };
+    demo.field = &.{ .field = .{ .Const = "asd" } };
     defer demo.deinit();
 
     const obtained = try demo.encode(testing.allocator);
