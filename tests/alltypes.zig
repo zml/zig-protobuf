@@ -75,8 +75,8 @@ test "unpacked int32_list" {
 
 test "Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.ProtobufOutput" {
     const bytes = "\xda\x02\x28\x00\x01\xff\xff\xff\xff\xff\xff\xff\xff\xff\x01\xce\xc2\xf1\x05\x80\x80\x80\x80\x20\xff\xff\xff\xff\xff\xff\xff\xff\x7f\x80\x80\x80\x80\x80\x80\x80\x80\x80\x01";
-    const m = try proto3.TestAllTypesProto3.decode(bytes, testing.allocator);
-    defer m.deinit();
+    var m = try proto3.TestAllTypesProto3.decode(bytes, testing.allocator);
+    defer m.deinit(testing.allocator);
 
     // TODO: try testing.expectEqualSlices(bool, &[_]bool{ false, false, false, false, true, false, false }, m.repeated_bool.items);
 }

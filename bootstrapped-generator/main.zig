@@ -6,6 +6,8 @@ const descriptor = @import("google/protobuf/descriptor.pb.zig");
 const mem = std.mem;
 const FullName = @import("./FullName.zig").FullName;
 
+const USE_MODULES = false;
+
 const allocator = std.heap.page_allocator;
 
 const string = []const u8;
@@ -154,10 +156,11 @@ const GenerationContext = struct {
                 // };
                 // This is a bit more involved because we need to merge different imports in one struct.
                 const import_name = try self.importName(dep.name.?.getSlice());
+                const import_path = self.resolvePath(file.name.?.getSlice(), dep.name.?.getSlice());
                 try list.append(try std.fmt.allocPrint(self.allocator, "{s} {!s} = @import(\"{!s}\");\n", .{
                     optional_pub_directive,
                     import_name,
-                    import_name,
+                    if (USE_MODULES) import_name else import_path,
                 }));
                 continue :file_deps;
             } else {
@@ -176,7 +179,7 @@ const GenerationContext = struct {
 
         // to resolve some escaping oddities, the windows path separator is canonicalized to /
         const resolvedRelativePath = try std.fs.path.relative(allocator, aPath, bPath);
-        return std.mem.replaceOwned(u8, self.req.file_to_generate.allocator, resolvedRelativePath, "\\", "/");
+        return std.mem.replaceOwned(u8, self.allocator, resolvedRelativePath, "\\", "/");
     }
 
     pub fn printFileDeclarations(self: *Self, fqn: FullName, file: *descriptor.FileDescriptorProto) !void {

@@ -12,17 +12,17 @@ test {
     std.testing.refAllDeclsRecursive(@This());
 }
 /// import package google.protobuf
-const google_protobuf_any_proto = @import("google_protobuf_any_proto");
+const google_protobuf_any_proto = @import("google/protobuf/any.pb.zig");
 /// import package google.protobuf
-const google_protobuf_duration_proto = @import("google_protobuf_duration_proto");
+const google_protobuf_duration_proto = @import("google/protobuf/duration.pb.zig");
 /// import package google.protobuf
-const google_protobuf_field_mask_proto = @import("google_protobuf_field_mask_proto");
+const google_protobuf_field_mask_proto = @import("google/protobuf/field_mask.pb.zig");
 /// import package google.protobuf
-const google_protobuf_struct_proto = @import("google_protobuf_struct_proto");
+const google_protobuf_struct_proto = @import("google/protobuf/struct.pb.zig");
 /// import package google.protobuf
-const google_protobuf_timestamp_proto = @import("google_protobuf_timestamp_proto");
+const google_protobuf_timestamp_proto = @import("google/protobuf/timestamp.pb.zig");
 /// import package google.protobuf
-const google_protobuf_wrappers_proto = @import("google_protobuf_wrappers_proto");
+const google_protobuf_wrappers_proto = @import("google/protobuf/wrappers.pb.zig");
 
 pub const ForeignEnum = enum(i32) {
     FOREIGN_FOO = 0,
