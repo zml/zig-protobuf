@@ -9,8 +9,8 @@ const unittest = @import("./generated/unittest.pb.zig");
 const longName = @import("./generated/whitespace-in-name.pb.zig");
 
 test "leak in allocated string" {
-    var demo = longName.WouldYouParseThisForMePlease.init(testing.allocator);
-    defer demo.deinit();
+    var demo = longName.WouldYouParseThisForMePlease.init();
+    defer demo.deinit(testing.allocator);
 
     // allocate a "dynamic" string
     const allocated = try testing.allocator.dupe(u8, "asd");

@@ -10,9 +10,7 @@ const unittest = @import("./generated/unittest.pb.zig");
 const longName = @import("./generated/whitespace-in-name.pb.zig");
 
 test "empty string in optional fields must be serialized over the wire" {
-    var t = jspb.TestClone.init(testing.allocator);
-    defer t.deinit();
-
+    var t = jspb.TestClone.init();
     try testing.expect(t.str == null);
 
     // first encode with NULL
@@ -21,8 +19,8 @@ test "empty string in optional fields must be serialized over the wire" {
     try testing.expectEqualSlices(u8, "", encodedNull);
 
     // decoded must be null as well
-    const decodedNull = try jspb.TestClone.decode("", testing.allocator);
-    defer decodedNull.deinit();
+    var decodedNull = try jspb.TestClone.decode("", testing.allocator);
+    defer decodedNull.deinit(testing.allocator);
     try testing.expect(decodedNull.str == null);
 
     // setting a value to "" must serialize the value
@@ -35,8 +33,8 @@ test "empty string in optional fields must be serialized over the wire" {
     try testing.expectEqualSlices(u8, &[_]u8{ 0x0A, 0x00 }, encodedEmpty);
 
     // decoded must be null as well
-    const decodedEmpty = try jspb.TestClone.decode(encodedEmpty, testing.allocator);
-    defer decodedEmpty.deinit();
+    var decodedEmpty = try jspb.TestClone.decode(encodedEmpty, testing.allocator);
+    defer decodedEmpty.deinit(testing.allocator);
     try testing.expect(decodedEmpty.str.?.isEmpty());
 }
 
@@ -48,8 +46,8 @@ test "unittest.proto parse and re-encode" {
         "\x31\x36\x83\x01\x88\x01\x75\x84\x01";
 
     // first decode the binary
-    const decoded = try unittest.TestAllTypes.decode(binary_file, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try unittest.TestAllTypes.decode(binary_file, testing.allocator);
+    defer decoded.deinit(testing.allocator);
 
     try assert(decoded);
 
@@ -58,8 +56,8 @@ test "unittest.proto parse and re-encode" {
     defer testing.allocator.free(encoded);
 
     // then re-decode it
-    const decoded2 = try unittest.TestAllTypes.decode(encoded, testing.allocator);
-    defer decoded2.deinit();
+    var decoded2 = try unittest.TestAllTypes.decode(encoded, testing.allocator);
+    defer decoded2.deinit(testing.allocator);
     const encoded2 = try decoded.encode(testing.allocator);
     defer testing.allocator.free(encoded2);
 

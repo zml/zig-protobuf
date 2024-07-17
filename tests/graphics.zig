@@ -7,15 +7,15 @@ const binary_file = @embedFile("./fixtures/graphics.bin");
 
 test "GraphicsDB" {
     // first decode the binary
-    const decoded = try graphics.GraphicsDB.decode(binary_file, testing.allocator);
+    var decoded = try graphics.GraphicsDB.decode(binary_file, testing.allocator);
 
     // then encode it
     const encoded = try decoded.encode(testing.allocator);
     defer testing.allocator.free(encoded);
 
     // dupe the decoded
-    const decoded_dupe = try decoded.dupe(testing.allocator);
-    defer decoded_dupe.deinit();
+    var decoded_dupe = try decoded.dupe(testing.allocator);
+    defer decoded_dupe.deinit(testing.allocator);
 
     {
         // encode and assert equality
@@ -26,14 +26,14 @@ test "GraphicsDB" {
     }
 
     // then re-decode it
-    const decoded2 = try graphics.GraphicsDB.decode(encoded, testing.allocator);
-    defer decoded2.deinit();
+    var decoded2 = try graphics.GraphicsDB.decode(encoded, testing.allocator);
+    defer decoded2.deinit(testing.allocator);
 
     // finally assert equal objects
     try testing.expectEqualDeep(decoded, decoded2);
 
     // then clean up the decoded memory of the first object. this should free all string slices
-    decoded.deinit();
+    decoded.deinit(testing.allocator);
 
     {
         // encode and assert equality again

@@ -11,8 +11,8 @@ test "mapbox decoding and re-encoding" {
     const copied_slice = try testing.allocator.dupe(u8, binary_file);
 
     // first decode the binary
-    const decoded = try vector_tile.Tile.decode(copied_slice, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try vector_tile.Tile.decode(copied_slice, testing.allocator);
+    defer decoded.deinit(testing.allocator);
 
     // then encode it
     const encoded = try decoded.encode(testing.allocator);
@@ -23,8 +23,8 @@ test "mapbox decoding and re-encoding" {
     testing.allocator.free(copied_slice);
 
     // then re-decode it
-    const decoded2 = try vector_tile.Tile.decode(encoded, testing.allocator);
-    defer decoded2.deinit();
+    var decoded2 = try vector_tile.Tile.decode(encoded, testing.allocator);
+    defer decoded2.deinit(testing.allocator);
 
     // finally assert
     try testing.expectEqualDeep(decoded, decoded2);

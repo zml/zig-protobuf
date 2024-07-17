@@ -4,8 +4,8 @@ const std = @import("std");
 const testing = std.testing;
 
 test "FixedSizes" {
-    var demo = FixedSizes.init(testing.allocator);
-    defer demo.deinit();
+    var demo = FixedSizes.init();
+    defer demo.deinit(testing.allocator);
     demo.sfixed64 = -1;
     demo.sfixed32 = -2;
     demo.fixed32 = 1;
@@ -21,14 +21,14 @@ test "FixedSizes" {
     try testing.expectEqualSlices(u8, &expected, obtained);
 
     // decoding
-    const decoded = try FixedSizes.decode(&expected, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try FixedSizes.decode(&expected, testing.allocator);
+    defer decoded.deinit(testing.allocator);
     try testing.expectEqual(demo, decoded);
 }
 
 test "FixedSizes - encode/decode" {
-    var demo = FixedSizes.init(testing.allocator);
-    defer demo.deinit();
+    var demo = FixedSizes.init();
+    defer demo.deinit(testing.allocator);
     demo.sfixed64 = -1123123141;
     demo.sfixed32 = -2131312;
     demo.fixed32 = 1;
@@ -40,7 +40,7 @@ test "FixedSizes - encode/decode" {
     defer testing.allocator.free(obtained);
 
     // decoding
-    const decoded = try FixedSizes.decode(obtained, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try FixedSizes.decode(obtained, testing.allocator);
+    defer decoded.deinit(testing.allocator);
     try testing.expectEqualDeep(demo, decoded);
 }

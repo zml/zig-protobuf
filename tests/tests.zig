@@ -24,7 +24,7 @@ pub fn printAllDecoded(input: []const u8) !void {
 }
 
 test "DefaultValuesInit" {
-    var demo = DefaultValues.init(testing.allocator);
+    const demo = DefaultValues.init();
 
     try testing.expectEqualSlices(u8, "default<>'\"abc", demo.string_field.?.getSlice());
     try testing.expectEqual(true, demo.bool_field.?);

@@ -20,21 +20,20 @@ pub fn printAllDecoded(input: []const u8) !void {
 test "long package" {
     // - this test allocates an object only. used to instruct zig to try to compile the file
     // - it also ensures that SubMessage deinit() works
-    var demo = longName.WouldYouParseThisForMePlease.init(testing.allocator);
+    var demo = longName.WouldYouParseThisForMePlease.init();
     demo.field = &.{ .field = .{ .Const = "asd" } };
-    defer demo.deinit();
 
     const obtained = try demo.encode(testing.allocator);
     defer testing.allocator.free(obtained);
 }
 
 test "packed int32_list encoding" {
-    var demo = tests.Packed.init(testing.allocator);
-    try demo.int32_list.append(0x01);
-    try demo.int32_list.append(0x02);
-    try demo.int32_list.append(0x03);
-    try demo.int32_list.append(0x04);
-    defer demo.deinit();
+    var demo = tests.Packed.init();
+    try demo.int32_list.append(testing.allocator, 0x01);
+    try demo.int32_list.append(testing.allocator, 0x02);
+    try demo.int32_list.append(testing.allocator, 0x03);
+    try demo.int32_list.append(testing.allocator, 0x04);
+    defer demo.deinit(testing.allocator);
 
     const obtained = try demo.encode(testing.allocator);
     defer testing.allocator.free(obtained);
@@ -51,26 +50,26 @@ test "packed int32_list encoding" {
         0x04,
     }, obtained);
 
-    const decoded = try tests.Packed.decode(obtained, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try tests.Packed.decode(obtained, testing.allocator);
+    defer decoded.deinit(testing.allocator);
     try testing.expectEqualSlices(i32, demo.int32_list.items, decoded.int32_list.items);
 }
 
 test "unpacked int32_list" {
-    var demo = tests.UnPacked.init(testing.allocator);
-    try demo.int32_list.append(0x01);
-    try demo.int32_list.append(0x02);
-    try demo.int32_list.append(0x03);
-    try demo.int32_list.append(0x04);
-    defer demo.deinit();
+    var demo = tests.UnPacked.init();
+    try demo.int32_list.append(testing.allocator, 0x01);
+    try demo.int32_list.append(testing.allocator, 0x02);
+    try demo.int32_list.append(testing.allocator, 0x03);
+    try demo.int32_list.append(testing.allocator, 0x04);
+    defer demo.deinit(testing.allocator);
 
     const obtained = try demo.encode(testing.allocator);
     defer testing.allocator.free(obtained);
 
     try testing.expectEqualSlices(u8, &[_]u8{ 0x08, 0x01, 0x08, 0x02, 0x08, 0x03, 0x08, 0x04 }, obtained);
 
-    const decoded = try tests.UnPacked.decode(obtained, testing.allocator);
-    defer decoded.deinit();
+    var decoded = try tests.UnPacked.decode(obtained, testing.allocator);
+    defer decoded.deinit(testing.allocator);
     try testing.expectEqualSlices(i32, demo.int32_list.items, decoded.int32_list.items);
 }
 
@@ -85,7 +84,7 @@ test "Required.Proto3.ProtobufInput.ValidDataRepeated.BOOL.PackedInput.ProtobufO
 test "msg-longs.proto" {
     const bytes = &[_]u8{ 17, 255, 255, 255, 255, 255, 255, 255, 255, 24, 128, 128, 128, 128, 128, 128, 128, 128, 128, 1, 32, 255, 255, 255, 255, 255, 255, 255, 255, 127, 41, 0, 0, 0, 0, 0, 0, 0, 128, 49, 255, 255, 255, 255, 255, 255, 255, 127, 56, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1, 64, 254, 255, 255, 255, 255, 255, 255, 255, 255, 1, 80, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1, 97, 255, 255, 255, 255, 255, 255, 255, 255, 104, 128, 128, 128, 128, 128, 128, 128, 128, 128, 1, 112, 255, 255, 255, 255, 255, 255, 255, 255, 127, 121, 0, 0, 0, 0, 0, 0, 0, 128, 129, 1, 255, 255, 255, 255, 255, 255, 255, 127, 136, 1, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1, 144, 1, 254, 255, 255, 255, 255, 255, 255, 255, 255, 1, 160, 1, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1, 177, 1, 255, 255, 255, 255, 255, 255, 255, 255, 184, 1, 128, 128, 128, 128, 128, 128, 128, 128, 128, 1, 192, 1, 255, 255, 255, 255, 255, 255, 255, 255, 127, 201, 1, 0, 0, 0, 0, 0, 0, 0, 128, 209, 1, 255, 255, 255, 255, 255, 255, 255, 127, 216, 1, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1, 224, 1, 254, 255, 255, 255, 255, 255, 255, 255, 255, 1, 240, 1, 255, 255, 255, 255, 255, 255, 255, 255, 255, 1 };
     var decoded = try longs.LongsMessage.decode(bytes, testing.allocator);
-    defer decoded.deinit();
+    defer decoded.deinit(testing.allocator);
 
     try testing.expectEqual(@as(u64, 0), decoded.fixed64_field_min);
     try testing.expectEqual(@as(u64, 18446744073709551615), decoded.fixed64_field_max);
@@ -100,8 +99,7 @@ test "msg-longs.proto" {
 }
 
 test "TestExtremeDefaultValues" {
-    var decoded = try unittest.TestExtremeDefaultValues.decode("", testing.allocator);
-    defer decoded.deinit();
+    const decoded = try unittest.TestExtremeDefaultValues.decode("", testing.allocator);
 
     try testing.expectEqualSlices(u8, "\\000\\001\\007\\010\\014\\n\\r\\t\\013\\\\\\'\\\"\\376", decoded.escaped_bytes.?.getSlice());
     try testing.expectEqual(@as(u32, 4294967295), decoded.large_uint32.?);
