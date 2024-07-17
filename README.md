@@ -14,14 +14,30 @@ Messages are usually mapped to a native language's structure/class definition th
 
 Zig's compile-time evaluation becomes extremely strong and useful in this context: because the structure (a message) has to be known beforehand, the generic codec can leverage informations, at compile time, of the message and it's nature. This allows optimizations that are hard to get as easily in any other language, as Zig can mix compile-time informations with runtime-only data to optimize the encoding and decoding code paths.
 
-## State of the implementation
 
-This repository, so far, only aims at implementing [protocol buffers version 3](https://developers.google.com/protocol-buffers/docs/proto3#simple).
+## State of this fork
 
-The latest version of the zig compiler used for this project is 0.13.0.
-
-This project is currently able to handle all scalar types for encoding, decoding, and generation through the plugin.
-
+This fork meant to fix a few issues I had with https://github.com/Arwalk/zig-protobuf/
+In particulare it uses:
+ 
+* one `.pb.zig` file per `.proto` file
+    - this match what other generators do, and work better with build systems like Bazel.
+    - in particular `protoc` passes to the plugin a list of file to generate, and zig-protobuf wasn't respecting that.
+* togglable module support
+    - instead of importing generated `.pb.zig` files in others `.pb.zig`, it can be nice 
+    to use Zig moduls.
+    I put a `pub const USE_MODULE = false` to the top of `main.zig` file.
+    Change to `true` to generate module names.
+    This allows to generate exactly once each `.pb.zig` and include them across folders.
+    Note that I haven't added support for individual modules in build.zig.
+* anonymous union type to avoid name conflicts
+* Official zig-protobuf uses flat struct everywhere. By comparison C++ uses pointers for each submessage.
+    - this is nice when possible because it's better for memory locality and simplifies alloc/deallocs.
+    - but it can generate code that doesn't compile: `message Foo { Foo x = 1; }` becomes `const Foo = struct { x: Foo }` which doesn't compile.
+    - instead this fork detects problematic messages and use pointers there.
+    For example `Foo` will become: `Foo = struct { x: ?*const Foo }`.
+    Contrary to C++ only self-referential messages are passed by pointers,
+    other messages are stored as flat struct.
 
 ## How to use
 
