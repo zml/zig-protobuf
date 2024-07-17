@@ -13,7 +13,7 @@ test {
 }
 
 pub const FieldMask = struct {
-    paths: ArrayListU(ManagedString),
+    paths: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .paths = fd(1, .{ .List = .String }),

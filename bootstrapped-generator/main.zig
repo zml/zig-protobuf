@@ -32,7 +32,7 @@ pub fn main() !void {
 const GenerationContext = struct {
     allocator: std.mem.Allocator,
     req: plugin.CodeGeneratorRequest,
-    res: plugin.CodeGeneratorResponse = plugin.CodeGeneratorResponse.init(),
+    res: plugin.CodeGeneratorResponse = .{},
 
     /// map of known packages
     known_packages: std.StringHashMap(FullName) = std.StringHashMap(FullName).init(allocator),
@@ -407,8 +407,7 @@ const GenerationContext = struct {
 
     fn getFieldDefault(_: *Self, field: descriptor.FieldDescriptorProto, file: descriptor.FileDescriptorProto, nullable: bool) !?string {
         // ArrayLists need to be initialized
-        const repeated = isRepeated(field);
-        if (repeated) return null;
+        if (isRepeated(field)) return ".{}";
 
         const is_proto3 = is_proto3_file(file);
 
@@ -435,7 +434,9 @@ const GenerationContext = struct {
                 .TYPE_BOOL => "false",
                 .TYPE_STRING, .TYPE_BYTES => ".Empty",
                 .TYPE_ENUM => "@enumFromInt(0)",
-                else => null,
+                .TYPE_MESSAGE => ".{}",
+                .TYPE_GROUP => @panic("Groups are deprecated and not supported in zig-protobuf"),
+                _ => @panic("Unrecognized type"),
             };
         }
 

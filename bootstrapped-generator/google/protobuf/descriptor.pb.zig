@@ -13,7 +13,7 @@ test {
 }
 
 pub const FileDescriptorSet = struct {
-    file: ArrayListU(FileDescriptorProto),
+    file: ArrayListU(FileDescriptorProto) = .{},
 
     pub const _desc_table = .{
         .file = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -25,13 +25,13 @@ pub const FileDescriptorSet = struct {
 pub const FileDescriptorProto = struct {
     name: ?ManagedString = null,
     package: ?ManagedString = null,
-    dependency: ArrayListU(ManagedString),
-    public_dependency: ArrayListU(i32),
-    weak_dependency: ArrayListU(i32),
-    message_type: ArrayListU(DescriptorProto),
-    enum_type: ArrayListU(EnumDescriptorProto),
-    service: ArrayListU(ServiceDescriptorProto),
-    extension: ArrayListU(FieldDescriptorProto),
+    dependency: ArrayListU(ManagedString) = .{},
+    public_dependency: ArrayListU(i32) = .{},
+    weak_dependency: ArrayListU(i32) = .{},
+    message_type: ArrayListU(DescriptorProto) = .{},
+    enum_type: ArrayListU(EnumDescriptorProto) = .{},
+    service: ArrayListU(ServiceDescriptorProto) = .{},
+    extension: ArrayListU(FieldDescriptorProto) = .{},
     options: ?*const FileOptions = null,
     source_code_info: ?*const SourceCodeInfo = null,
     syntax: ?ManagedString = null,
@@ -58,15 +58,15 @@ pub const FileDescriptorProto = struct {
 
 pub const DescriptorProto = struct {
     name: ?ManagedString = null,
-    field: ArrayListU(FieldDescriptorProto),
-    extension: ArrayListU(FieldDescriptorProto),
-    nested_type: ArrayListU(DescriptorProto),
-    enum_type: ArrayListU(EnumDescriptorProto),
-    extension_range: ArrayListU(DescriptorProto.ExtensionRange),
-    oneof_decl: ArrayListU(OneofDescriptorProto),
+    field: ArrayListU(FieldDescriptorProto) = .{},
+    extension: ArrayListU(FieldDescriptorProto) = .{},
+    nested_type: ArrayListU(DescriptorProto) = .{},
+    enum_type: ArrayListU(EnumDescriptorProto) = .{},
+    extension_range: ArrayListU(DescriptorProto.ExtensionRange) = .{},
+    oneof_decl: ArrayListU(OneofDescriptorProto) = .{},
     options: ?*const MessageOptions = null,
-    reserved_range: ArrayListU(DescriptorProto.ReservedRange),
-    reserved_name: ArrayListU(ManagedString),
+    reserved_range: ArrayListU(DescriptorProto.ReservedRange) = .{},
+    reserved_name: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .name = fd(1, .String),
@@ -111,8 +111,8 @@ pub const DescriptorProto = struct {
 };
 
 pub const ExtensionRangeOptions = struct {
-    uninterpreted_option: ArrayListU(UninterpretedOption),
-    declaration: ArrayListU(ExtensionRangeOptions.Declaration),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
+    declaration: ArrayListU(ExtensionRangeOptions.Declaration) = .{},
     verification: ?ExtensionRangeOptions.VerificationState = .UNVERIFIED,
 
     pub const _desc_table = .{
@@ -223,10 +223,10 @@ pub const OneofDescriptorProto = struct {
 
 pub const EnumDescriptorProto = struct {
     name: ?ManagedString = null,
-    value: ArrayListU(EnumValueDescriptorProto),
+    value: ArrayListU(EnumValueDescriptorProto) = .{},
     options: ?*const EnumOptions = null,
-    reserved_range: ArrayListU(EnumDescriptorProto.EnumReservedRange),
-    reserved_name: ArrayListU(ManagedString),
+    reserved_range: ArrayListU(EnumDescriptorProto.EnumReservedRange) = .{},
+    reserved_name: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .name = fd(1, .String),
@@ -267,7 +267,7 @@ pub const EnumValueDescriptorProto = struct {
 
 pub const ServiceDescriptorProto = struct {
     name: ?ManagedString = null,
-    method: ArrayListU(MethodDescriptorProto),
+    method: ArrayListU(MethodDescriptorProto) = .{},
     options: ?*const ServiceOptions = null,
 
     pub const _desc_table = .{
@@ -320,7 +320,7 @@ pub const FileOptions = struct {
     php_namespace: ?ManagedString = null,
     php_metadata_namespace: ?ManagedString = null,
     ruby_package: ?ManagedString = null,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .java_package = fd(1, .String),
@@ -362,7 +362,7 @@ pub const MessageOptions = struct {
     deprecated: ?bool = false,
     map_entry: ?bool = null,
     deprecated_legacy_json_field_conflicts: ?bool = null,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .message_set_wire_format = fd(1, .{ .Varint = .Simple }),
@@ -387,8 +387,8 @@ pub const FieldOptions = struct {
     debug_redact: ?bool = false,
     retention: ?FieldOptions.OptionRetention = null,
     target: ?FieldOptions.OptionTargetType = null,
-    targets: ArrayListU(FieldOptions.OptionTargetType),
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    targets: ArrayListU(FieldOptions.OptionTargetType) = .{},
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .ctype = fd(1, .{ .Varint = .Simple }),
@@ -444,7 +444,7 @@ pub const FieldOptions = struct {
 };
 
 pub const OneofOptions = struct {
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .uninterpreted_option = fd(999, .{ .List = .{ .SubMessage = {} } }),
@@ -457,7 +457,7 @@ pub const EnumOptions = struct {
     allow_alias: ?bool = null,
     deprecated: ?bool = false,
     deprecated_legacy_json_field_conflicts: ?bool = null,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .allow_alias = fd(2, .{ .Varint = .Simple }),
@@ -471,7 +471,7 @@ pub const EnumOptions = struct {
 
 pub const EnumValueOptions = struct {
     deprecated: ?bool = false,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .deprecated = fd(1, .{ .Varint = .Simple }),
@@ -483,7 +483,7 @@ pub const EnumValueOptions = struct {
 
 pub const ServiceOptions = struct {
     deprecated: ?bool = false,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .deprecated = fd(33, .{ .Varint = .Simple }),
@@ -496,7 +496,7 @@ pub const ServiceOptions = struct {
 pub const MethodOptions = struct {
     deprecated: ?bool = false,
     idempotency_level: ?MethodOptions.IdempotencyLevel = .IDEMPOTENCY_UNKNOWN,
-    uninterpreted_option: ArrayListU(UninterpretedOption),
+    uninterpreted_option: ArrayListU(UninterpretedOption) = .{},
 
     pub const _desc_table = .{
         .deprecated = fd(33, .{ .Varint = .Simple }),
@@ -515,7 +515,7 @@ pub const MethodOptions = struct {
 };
 
 pub const UninterpretedOption = struct {
-    name: ArrayListU(UninterpretedOption.NamePart),
+    name: ArrayListU(UninterpretedOption.NamePart) = .{},
     identifier_value: ?ManagedString = null,
     positive_int_value: ?u64 = null,
     negative_int_value: ?i64 = null,
@@ -549,18 +549,18 @@ pub const UninterpretedOption = struct {
 };
 
 pub const SourceCodeInfo = struct {
-    location: ArrayListU(SourceCodeInfo.Location),
+    location: ArrayListU(SourceCodeInfo.Location) = .{},
 
     pub const _desc_table = .{
         .location = fd(1, .{ .List = .{ .SubMessage = {} } }),
     };
 
     pub const Location = struct {
-        path: ArrayListU(i32),
-        span: ArrayListU(i32),
+        path: ArrayListU(i32) = .{},
+        span: ArrayListU(i32) = .{},
         leading_comments: ?ManagedString = null,
         trailing_comments: ?ManagedString = null,
-        leading_detached_comments: ArrayListU(ManagedString),
+        leading_detached_comments: ArrayListU(ManagedString) = .{},
 
         pub const _desc_table = .{
             .path = fd(1, .{ .PackedList = .{ .Varint = .Simple } }),
@@ -577,14 +577,14 @@ pub const SourceCodeInfo = struct {
 };
 
 pub const GeneratedCodeInfo = struct {
-    annotation: ArrayListU(GeneratedCodeInfo.Annotation),
+    annotation: ArrayListU(GeneratedCodeInfo.Annotation) = .{},
 
     pub const _desc_table = .{
         .annotation = fd(1, .{ .List = .{ .SubMessage = {} } }),
     };
 
     pub const Annotation = struct {
-        path: ArrayListU(i32),
+        path: ArrayListU(i32) = .{},
         source_file: ?ManagedString = null,
         begin: ?i32 = null,
         end: ?i32 = null,

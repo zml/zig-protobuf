@@ -31,9 +31,9 @@ pub const Version = struct {
 };
 
 pub const CodeGeneratorRequest = struct {
-    file_to_generate: ArrayListU(ManagedString),
+    file_to_generate: ArrayListU(ManagedString) = .{},
     parameter: ?ManagedString = null,
-    proto_file: ArrayListU(google_protobuf_descriptor_proto.FileDescriptorProto),
+    proto_file: ArrayListU(google_protobuf_descriptor_proto.FileDescriptorProto) = .{},
     compiler_version: ?*const Version = null,
 
     pub const _desc_table = .{
@@ -49,7 +49,7 @@ pub const CodeGeneratorRequest = struct {
 pub const CodeGeneratorResponse = struct {
     @"error": ?ManagedString = null,
     supported_features: ?u64 = null,
-    file: ArrayListU(CodeGeneratorResponse.File),
+    file: ArrayListU(CodeGeneratorResponse.File) = .{},
 
     pub const _desc_table = .{
         .@"error" = fd(1, .String),

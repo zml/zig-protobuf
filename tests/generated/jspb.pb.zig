@@ -45,7 +45,7 @@ pub const EnumContainer = struct {
 
 pub const Simple1 = struct {
     a_string: ManagedString,
-    a_repeated_string: ArrayListU(ManagedString),
+    a_repeated_string: ArrayListU(ManagedString) = .{},
     a_boolean: ?bool = null,
 
     pub const _desc_table = .{
@@ -59,7 +59,7 @@ pub const Simple1 = struct {
 
 pub const Simple2 = struct {
     a_string: ManagedString,
-    a_repeated_string: ArrayListU(ManagedString),
+    a_repeated_string: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .a_string = fd(1, .String),
@@ -89,8 +89,8 @@ pub const OptionalFields = struct {
     a_string: ?ManagedString = null,
     a_bool: bool,
     a_nested_message: ?*const OptionalFields.Nested = null,
-    a_repeated_message: ArrayListU(OptionalFields.Nested),
-    a_repeated_string: ArrayListU(ManagedString),
+    a_repeated_message: ArrayListU(OptionalFields.Nested) = .{},
+    a_repeated_string: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .a_string = fd(1, .String),
@@ -131,8 +131,8 @@ pub const Complex = struct {
     a_string: ManagedString,
     an_out_of_order_bool: bool,
     a_nested_message: ?*const Complex.Nested = null,
-    a_repeated_message: ArrayListU(Complex.Nested),
-    a_repeated_string: ArrayListU(ManagedString),
+    a_repeated_message: ArrayListU(Complex.Nested) = .{},
+    a_repeated_string: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .a_string = fd(1, .String),
@@ -200,11 +200,11 @@ pub const DefaultValues = struct {
 pub const FloatingPointFields = struct {
     optional_float_field: ?f32 = null,
     required_float_field: f32,
-    repeated_float_field: ArrayListU(f32),
+    repeated_float_field: ArrayListU(f32) = .{},
     default_float_field: ?f32 = 2,
     optional_double_field: ?f64 = null,
     required_double_field: f64,
-    repeated_double_field: ArrayListU(f64),
+    repeated_double_field: ArrayListU(f64) = .{},
     default_double_field: ?f64 = 2,
 
     pub const _desc_table = .{
@@ -224,7 +224,7 @@ pub const FloatingPointFields = struct {
 pub const TestClone = struct {
     str: ?ManagedString = null,
     simple1: ?*const Simple1 = null,
-    simple2: ArrayListU(Simple1),
+    simple2: ArrayListU(Simple1) = .{},
     bytes_field: ?ManagedString = null,
     unused: ?ManagedString = null,
 
@@ -281,7 +281,7 @@ pub const TestReservedNamesExtension = struct {
 
 pub const TestMessageWithOneof = struct {
     normal_field: ?bool = null,
-    repeated_field: ArrayListU(ManagedString),
+    repeated_field: ArrayListU(ManagedString) = .{},
     partial_oneof: ?union(enum) {
         pone: ManagedString,
         pthree: ManagedString,
@@ -340,18 +340,18 @@ pub const TestEndsWithBytes = struct {
 };
 
 pub const TestMapFieldsNoBinary = struct {
-    map_string_string: ArrayListU(TestMapFieldsNoBinary.MapStringStringEntry),
-    map_string_int32: ArrayListU(TestMapFieldsNoBinary.MapStringInt32Entry),
-    map_string_int64: ArrayListU(TestMapFieldsNoBinary.MapStringInt64Entry),
-    map_string_bool: ArrayListU(TestMapFieldsNoBinary.MapStringBoolEntry),
-    map_string_double: ArrayListU(TestMapFieldsNoBinary.MapStringDoubleEntry),
-    map_string_enum: ArrayListU(TestMapFieldsNoBinary.MapStringEnumEntry),
-    map_string_msg: ArrayListU(TestMapFieldsNoBinary.MapStringMsgEntry),
-    map_int32_string: ArrayListU(TestMapFieldsNoBinary.MapInt32StringEntry),
-    map_int64_string: ArrayListU(TestMapFieldsNoBinary.MapInt64StringEntry),
-    map_bool_string: ArrayListU(TestMapFieldsNoBinary.MapBoolStringEntry),
+    map_string_string: ArrayListU(TestMapFieldsNoBinary.MapStringStringEntry) = .{},
+    map_string_int32: ArrayListU(TestMapFieldsNoBinary.MapStringInt32Entry) = .{},
+    map_string_int64: ArrayListU(TestMapFieldsNoBinary.MapStringInt64Entry) = .{},
+    map_string_bool: ArrayListU(TestMapFieldsNoBinary.MapStringBoolEntry) = .{},
+    map_string_double: ArrayListU(TestMapFieldsNoBinary.MapStringDoubleEntry) = .{},
+    map_string_enum: ArrayListU(TestMapFieldsNoBinary.MapStringEnumEntry) = .{},
+    map_string_msg: ArrayListU(TestMapFieldsNoBinary.MapStringMsgEntry) = .{},
+    map_int32_string: ArrayListU(TestMapFieldsNoBinary.MapInt32StringEntry) = .{},
+    map_int64_string: ArrayListU(TestMapFieldsNoBinary.MapInt64StringEntry) = .{},
+    map_bool_string: ArrayListU(TestMapFieldsNoBinary.MapBoolStringEntry) = .{},
     test_map_fields: ?*const TestMapFieldsNoBinary = null,
-    map_string_testmapfields: ArrayListU(TestMapFieldsNoBinary.MapStringTestmapfieldsEntry),
+    map_string_testmapfields: ArrayListU(TestMapFieldsNoBinary.MapStringTestmapfieldsEntry) = .{},
 
     pub const _desc_table = .{
         .map_string_string = fd(1, .{ .List = .{ .SubMessage = {} } }),

@@ -18,7 +18,7 @@ pub const NullValue = enum(i32) {
 };
 
 pub const Struct = struct {
-    fields: ArrayListU(Struct.FieldsEntry),
+    fields: ArrayListU(Struct.FieldsEntry) = .{},
 
     pub const _desc_table = .{
         .fields = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -65,7 +65,7 @@ pub const Value = struct {
 };
 
 pub const ListValue = struct {
-    values: ArrayListU(Value),
+    values: ArrayListU(Value) = .{},
 
     pub const _desc_table = .{
         .values = fd(1, .{ .List = .{ .SubMessage = {} } }),

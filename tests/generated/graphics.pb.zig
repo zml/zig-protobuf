@@ -82,10 +82,10 @@ pub const Alignment = struct {
 
 pub const Index = struct {
     id: i32 = 0,
-    grh: ArrayListU(i32),
+    grh: ArrayListU(i32) = .{},
     offset_x: i32 = 0,
     offset_y: i32 = 0,
-    animations: ArrayListU(Index.AnimationsEntry),
+    animations: ArrayListU(Index.AnimationsEntry) = .{},
     name: ManagedString = .Empty,
 
     pub const _desc_table = .{
@@ -114,7 +114,7 @@ pub const Index = struct {
 
 pub const StoredChunk = struct {
     chunk_id: i32 = 0,
-    entities: ArrayListU(MapEntity),
+    entities: ArrayListU(MapEntity) = .{},
 
     pub const _desc_table = .{
         .chunk_id = fd(1, .{ .Varint = .Simple }),
@@ -177,7 +177,7 @@ pub const Point = struct {
 };
 
 pub const Shape = struct {
-    points: ArrayListU(Point),
+    points: ArrayListU(Point) = .{},
 
     pub const _desc_table = .{
         .points = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -189,7 +189,7 @@ pub const Shape = struct {
 pub const Npc = struct {
     x: i32 = 0,
     y: i32 = 0,
-    items: ArrayListU(InventoryItem),
+    items: ArrayListU(InventoryItem) = .{},
     name: ManagedString = .Empty,
     alignment: ManagedString = .Empty,
     ai: ManagedString = .Empty,
@@ -199,8 +199,8 @@ pub const Npc = struct {
     max_mana: i32 = 0,
     min_strenght: i32 = 0,
     max_strenght: i32 = 0,
-    skills: ArrayListU(Npc.SkillsEntry),
-    abilities: ArrayListU(Npc.AbilitiesEntry),
+    skills: ArrayListU(Npc.SkillsEntry) = .{},
+    abilities: ArrayListU(Npc.AbilitiesEntry) = .{},
     visual: ?*const Character = null,
 
     pub const _desc_table = .{
@@ -291,16 +291,16 @@ pub const MapItem = struct {
 };
 
 pub const GraphicsDB = struct {
-    textures: ArrayListU(Texture),
-    graphics: ArrayListU(Graphic),
-    bodies: ArrayListU(Index),
-    fxs: ArrayListU(Index),
-    heads: ArrayListU(Index),
-    helmets: ArrayListU(Index),
-    shields: ArrayListU(Index),
-    weapons: ArrayListU(Index),
-    scripts: ArrayListU(Script),
-    spine: ArrayListU(Spine),
+    textures: ArrayListU(Texture) = .{},
+    graphics: ArrayListU(Graphic) = .{},
+    bodies: ArrayListU(Index) = .{},
+    fxs: ArrayListU(Index) = .{},
+    heads: ArrayListU(Index) = .{},
+    helmets: ArrayListU(Index) = .{},
+    shields: ArrayListU(Index) = .{},
+    weapons: ArrayListU(Index) = .{},
+    scripts: ArrayListU(Script) = .{},
+    spine: ArrayListU(Spine) = .{},
 
     pub const _desc_table = .{
         .textures = fd(1, .{ .List = .{ .SubMessage = {} } }),
@@ -416,7 +416,7 @@ pub const Sprite = struct {
 };
 
 pub const Animation = struct {
-    frames: ArrayListU(i32),
+    frames: ArrayListU(i32) = .{},
     speed: f32 = 0,
 
     pub const _desc_table = .{

@@ -71,7 +71,7 @@ pub const WithEnumShadow = struct {
 };
 
 pub const RepeatedEnum = struct {
-    value: ArrayListU(TopLevelEnum),
+    value: ArrayListU(TopLevelEnum) = .{},
 
     pub const _desc_table = .{
         .value = fd(1, .{ .List = .{ .Varint = .Simple } }),
@@ -81,16 +81,16 @@ pub const RepeatedEnum = struct {
 };
 
 pub const Packed = struct {
-    int32_list: ArrayListU(i32),
-    uint32_list: ArrayListU(u32),
-    sint32_list: ArrayListU(i32),
-    float_list: ArrayListU(f32),
-    double_list: ArrayListU(f64),
-    int64_list: ArrayListU(i64),
-    sint64_list: ArrayListU(i64),
-    uint64_list: ArrayListU(u64),
-    bool_list: ArrayListU(bool),
-    enum_list: ArrayListU(TopLevelEnum),
+    int32_list: ArrayListU(i32) = .{},
+    uint32_list: ArrayListU(u32) = .{},
+    sint32_list: ArrayListU(i32) = .{},
+    float_list: ArrayListU(f32) = .{},
+    double_list: ArrayListU(f64) = .{},
+    int64_list: ArrayListU(i64) = .{},
+    sint64_list: ArrayListU(i64) = .{},
+    uint64_list: ArrayListU(u64) = .{},
+    bool_list: ArrayListU(bool) = .{},
+    enum_list: ArrayListU(TopLevelEnum) = .{},
 
     pub const _desc_table = .{
         .int32_list = fd(1, .{ .PackedList = .{ .Varint = .Simple } }),
@@ -109,16 +109,16 @@ pub const Packed = struct {
 };
 
 pub const UnPacked = struct {
-    int32_list: ArrayListU(i32),
-    uint32_list: ArrayListU(u32),
-    sint32_list: ArrayListU(i32),
-    float_list: ArrayListU(f32),
-    double_list: ArrayListU(f64),
-    int64_list: ArrayListU(i64),
-    sint64_list: ArrayListU(i64),
-    uint64_list: ArrayListU(u64),
-    bool_list: ArrayListU(bool),
-    enum_list: ArrayListU(TopLevelEnum),
+    int32_list: ArrayListU(i32) = .{},
+    uint32_list: ArrayListU(u32) = .{},
+    sint32_list: ArrayListU(i32) = .{},
+    float_list: ArrayListU(f32) = .{},
+    double_list: ArrayListU(f64) = .{},
+    int64_list: ArrayListU(i64) = .{},
+    sint64_list: ArrayListU(i64) = .{},
+    uint64_list: ArrayListU(u64) = .{},
+    bool_list: ArrayListU(bool) = .{},
+    enum_list: ArrayListU(TopLevelEnum) = .{},
 
     pub const _desc_table = .{
         .int32_list = fd(1, .{ .List = .{ .Varint = .Simple } }),
@@ -157,7 +157,7 @@ pub const WithStrings = struct {
 };
 
 pub const WithRepeatedStrings = struct {
-    name: ArrayListU(ManagedString),
+    name: ArrayListU(ManagedString) = .{},
 
     pub const _desc_table = .{
         .name = fd(1, .{ .List = .String }),

@@ -13,7 +13,7 @@ test {
 }
 
 pub const Tile = struct {
-    layers: ArrayListU(Tile.Layer),
+    layers: ArrayListU(Tile.Layer) = .{},
 
     pub const _desc_table = .{
         .layers = fd(3, .{ .List = .{ .SubMessage = {} } }),
@@ -51,9 +51,9 @@ pub const Tile = struct {
 
     pub const Feature = struct {
         id: ?u64 = 0,
-        tags: ArrayListU(u32),
+        tags: ArrayListU(u32) = .{},
         type: ?Tile.GeomType = .UNKNOWN,
-        geometry: ArrayListU(u32),
+        geometry: ArrayListU(u32) = .{},
 
         pub const _desc_table = .{
             .id = fd(1, .{ .Varint = .Simple }),
@@ -68,9 +68,9 @@ pub const Tile = struct {
     pub const Layer = struct {
         version: u32 = 1,
         name: ManagedString,
-        features: ArrayListU(Tile.Feature),
-        keys: ArrayListU(ManagedString),
-        values: ArrayListU(Tile.Value),
+        features: ArrayListU(Tile.Feature) = .{},
+        keys: ArrayListU(ManagedString) = .{},
+        values: ArrayListU(Tile.Value) = .{},
         extent: ?u32 = 4096,
 
         pub const _desc_table = .{
