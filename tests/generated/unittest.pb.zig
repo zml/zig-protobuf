@@ -582,12 +582,12 @@ pub const TestRequiredMessage = struct {
 
 pub const TestNestedRequiredForeign = struct {
     child: ?*const TestNestedRequiredForeign = null,
-    payload: ?*const TestRequiredForeign = null,
+    payload: ?TestRequiredForeign = null,
     dummy: ?i32 = null,
 
     pub const _desc_table = .{
         .child = fd(1, .{ .AllocMessage = {} }),
-        .payload = fd(2, .{ .AllocMessage = {} }),
+        .payload = fd(2, .{ .SubMessage = {} }),
         .dummy = fd(3, .{ .Varint = .Simple }),
     };
 
@@ -674,12 +674,12 @@ pub const TestRecursiveMessage = struct {
 
 pub const TestMutualRecursionA = struct {
     bb: ?*const TestMutualRecursionB = null,
-    sub_message: ?*const TestMutualRecursionA.SubMessage = null,
+    sub_message: ?TestMutualRecursionA.SubMessage = null,
     not_in_this_scc: ?TestAllTypes = null,
 
     pub const _desc_table = .{
         .bb = fd(1, .{ .AllocMessage = {} }),
-        .sub_message = fd(3, .{ .AllocMessage = {} }),
+        .sub_message = fd(3, .{ .SubMessage = {} }),
         .not_in_this_scc = fd(4, .{ .SubMessage = {} }),
     };
 
@@ -697,11 +697,11 @@ pub const TestMutualRecursionA = struct {
 };
 
 pub const TestMutualRecursionB = struct {
-    a: ?*const TestMutualRecursionA = null,
+    a: ?TestMutualRecursionA = null,
     optional_int32: ?i32 = null,
 
     pub const _desc_table = .{
-        .a = fd(1, .{ .AllocMessage = {} }),
+        .a = fd(1, .{ .SubMessage = {} }),
         .optional_int32 = fd(2, .{ .Varint = .Simple }),
     };
 

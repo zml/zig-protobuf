@@ -45,15 +45,15 @@ pub const Value = struct {
         number_value: f64,
         string_value: ManagedString,
         bool_value: bool,
-        struct_value: *const Struct,
-        list_value: *const ListValue,
+        struct_value: Struct,
+        list_value: ListValue,
         pub const _union_desc = .{
             .null_value = fd(1, .{ .Varint = .Simple }),
             .number_value = fd(2, .{ .FixedInt = .I64 }),
             .string_value = fd(3, .String),
             .bool_value = fd(4, .{ .Varint = .Simple }),
-            .struct_value = fd(5, .{ .AllocMessage = {} }),
-            .list_value = fd(6, .{ .AllocMessage = {} }),
+            .struct_value = fd(5, .{ .SubMessage = {} }),
+            .list_value = fd(6, .{ .SubMessage = {} }),
         };
     },
 

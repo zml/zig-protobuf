@@ -370,7 +370,10 @@ const GenerationContext = struct {
                 prefix = "?";
             }
         } else {
-            // with union the option is on the union not on the union fields
+            // Note: this allows to break protos depending on themselve:
+            // `message Foo { Foo x = 1; }` becomes `const Foo = struct { x: ?*const Foo }`
+            // But it also means that every message using `Foo` will also pass it by reference, even though only the Foo inside Foo is an issue.
+            // We could be more precise, and only pass problematic Foo by pointers.
             prefix = if (is_union) "*const " else "?*const ";
         }
 
@@ -429,18 +432,24 @@ const GenerationContext = struct {
         for (desc.field.items) |field| {
             switch (field.type.?) {
                 .TYPE_MESSAGE => {
-                    if (self.resolveTypeIsBasic(field.type_name.?.getSlice())) {
-                        continue;
-                    } else {
-                        res.value_ptr.* = .complex;
-                        return false;
-                    }
+                    // Resolve nested messages.
+                    _ = self.resolveTypeIsBasic(field.type_name.?.getSlice());
                 },
                 else => {},
             }
         }
-        res.value_ptr.* = .basic;
-        return true;
+        // While resolving nested types, we might have marked ourselves as .complex because of a loop.
+        // But otherwise we should still be resolving.
+        // Indeed if we modify ourselves, it means there was a loop,
+        // and that we are complex.
+        return switch (res.value_ptr.*) {
+            .complex => false,
+            .resolving => {
+                res.value_ptr.* = .basic;
+                return true;
+            },
+            .basic => unreachable,
+        };
     }
 
     fn getFieldDefault(_: *Self, field: descriptor.FieldDescriptorProto, file: descriptor.FileDescriptorProto, nullable: bool) !?string {
