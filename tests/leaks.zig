@@ -9,13 +9,15 @@ const unittest = @import("./generated/unittest.pb.zig");
 const longName = @import("./generated/whitespace-in-name.pb.zig");
 
 test "leak in allocated string" {
-    var demo = longName.WouldYouParseThisForMePlease.init();
+    var demo: longName.WouldYouParseThisForMePlease = .{};
     defer demo.deinit(testing.allocator);
 
     // allocate a "dynamic" string
     const allocated = try testing.allocator.dupe(u8, "asd");
+    const field = try testing.allocator.create(longName.Test);
+    demo.field = field;
     // copy the allocated string
-    demo.field = &.{ .field = try protobuf.ManagedString.copy(allocated, testing.allocator) };
+    field.* = .{ .field = try protobuf.ManagedString.copy(allocated, testing.allocator) };
     // release the allocated string immediately
     testing.allocator.free(allocated);
 

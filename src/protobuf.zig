@@ -934,7 +934,13 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
         .AllocMessage => {
             // apply the new value
             const Data = Unwrap(field.type);
-            const data_ptr = try allocator.create(Data);
+            const data_ptr: *Data = if (@field(result, field.name)) |prev_value| blk: {
+                // Deinit prev value, this happens when the message contains several times the same message.
+                // NOTE: I kept this behavior from https://github.com/Arwalk/zig-protobuf, but I find it weird.
+                // In case of inconsistent message could we keep the first field and ignore ulterior ones ?
+                @constCast(prev_value).deinit(allocator);
+                break :blk @constCast(prev_value);
+            } else try allocator.create(Data);
             data_ptr.* = try decode_value(Data, field_desc.ftype, extracted_data, allocator);
             @field(result, field.name) = data_ptr;
         },
@@ -975,11 +981,18 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
             // 2. when a match is found, it creates the union value in the `field.name` property of the struct `result`. breaks the for at that point
             const desc_union = one_of._union_desc;
             inline for (@typeInfo(one_of).Union.fields) |union_field| {
-                const v = @field(desc_union, union_field.name);
-                if (is_tag_known(v, extracted_data)) {
+                const desc = @field(desc_union, union_field.name);
+                if (is_tag_known(desc, extracted_data)) {
+                    if (@field(result, field.name)) |*prev_value| {
+                        // Deinit prev value, in case the message contains several times the same union.
+                        // NOTE: I kept this behavior from https://github.com/Arwalk/zig-protobuf, but I find it weird.
+                        // In case of inconsistent message could we keep the first field and ignore ulterior ones ?
+                        pb_deinit(allocator, prev_value, field_desc.ftype);
+                    }
                     // decode & assign the new value
-                    const value = try decode_value(union_field.type, v.ftype, extracted_data, allocator);
+                    const value = try decode_value(union_field.type, desc.ftype, extracted_data, allocator);
                     @field(result, field.name) = @unionInit(one_of, union_field.name, value);
+                    return;
                 }
             }
         },
