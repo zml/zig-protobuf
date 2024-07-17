@@ -36,12 +36,12 @@ pub const OneofContainer = struct {
     enum_field: Enum = @enumFromInt(0),
     some_oneof: ?union(enum) {
         string_in_oneof: ManagedString,
-        message_in_oneof: *const Message,
+        message_in_oneof: Message,
         a_number: i32,
         enum_value: Enum,
         pub const _union_desc = .{
             .string_in_oneof = fd(1, .String),
-            .message_in_oneof = fd(2, .{ .AllocMessage = {} }),
+            .message_in_oneof = fd(2, .{ .SubMessage = {} }),
             .a_number = fd(3, .{ .Varint = .Simple }),
             .enum_value = fd(6, .{ .Varint = .Simple }),
         };
@@ -57,7 +57,7 @@ pub const OneofContainer = struct {
 };
 
 pub const NestedOneofContainer = struct {
-    failure: ?*const NestedOneofContainer.AnotherContainer = null,
+    failure: ?NestedOneofContainer.AnotherContainer = null,
     key: ?union(enum) {
         a: ManagedString,
         b: i64,
@@ -68,7 +68,7 @@ pub const NestedOneofContainer = struct {
     },
 
     pub const _desc_table = .{
-        .failure = fd(7, .{ .AllocMessage = {} }),
+        .failure = fd(7, .{ .SubMessage = {} }),
         .key = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .key)) }),
     };
 

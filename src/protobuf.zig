@@ -469,13 +469,7 @@ pub fn pb_init(comptime T: type) T {
                     @field(value, field.name) = get_field_default_value(field.type);
                 }
             },
-            .AllocMessage => {
-                @field(value, field.name) = null;
-            },
-            .SubMessage => {
-                @field(value, field.name) = null;
-            },
-            .OneOf => {
+            .AllocMessage, .SubMessage, .OneOf => {
                 @field(value, field.name) = null;
             },
             .List, .PackedList => {

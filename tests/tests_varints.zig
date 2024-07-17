@@ -323,8 +323,8 @@ test "varint packed - encode - multi-byte-varint" {
 
 test "WithSubmessages" {
     var demo = tests.WithSubmessages2{
-        .sub_demo1 = &.{ .a = 1 },
-        .sub_demo2 = &.{ .a = 2, .b = 3 },
+        .sub_demo1 = .{ .a = 1 },
+        .sub_demo2 = .{ .a = 2, .b = 3 },
     };
 
     const obtained = try demo.encode(testing.allocator);
@@ -334,7 +334,7 @@ test "WithSubmessages" {
 
     var decoded = try tests.WithSubmessages2.decode(obtained, testing.allocator);
     defer decoded.deinit(testing.allocator);
-    try testing.expectEqualDeep(demo, decoded);
+    try testing.expectEqual(demo, decoded);
 }
 
 test "FixedInt - not packed" {

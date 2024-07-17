@@ -34,13 +34,13 @@ pub const CodeGeneratorRequest = struct {
     file_to_generate: ArrayListU(ManagedString) = .{},
     parameter: ?ManagedString = null,
     proto_file: ArrayListU(google_protobuf_descriptor_proto.FileDescriptorProto) = .{},
-    compiler_version: ?*const Version = null,
+    compiler_version: ?Version = null,
 
     pub const _desc_table = .{
         .file_to_generate = fd(1, .{ .List = .String }),
         .parameter = fd(2, .String),
         .proto_file = fd(15, .{ .List = .{ .SubMessage = {} } }),
-        .compiler_version = fd(3, .{ .AllocMessage = {} }),
+        .compiler_version = fd(3, .{ .SubMessage = {} }),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
@@ -67,13 +67,13 @@ pub const CodeGeneratorResponse = struct {
         name: ?ManagedString = null,
         insertion_point: ?ManagedString = null,
         content: ?ManagedString = null,
-        generated_code_info: ?*const google_protobuf_descriptor_proto.GeneratedCodeInfo = null,
+        generated_code_info: ?google_protobuf_descriptor_proto.GeneratedCodeInfo = null,
 
         pub const _desc_table = .{
             .name = fd(1, .String),
             .insertion_point = fd(2, .String),
             .content = fd(15, .String),
-            .generated_code_info = fd(16, .{ .AllocMessage = {} }),
+            .generated_code_info = fd(16, .{ .SubMessage = {} }),
         };
 
         pub usingnamespace protobuf.MessageMixins(@This());

@@ -37,12 +37,16 @@ const GenerationContext = struct {
     /// map of known packages
     known_packages: std.StringHashMap(FullName) = std.StringHashMap(FullName).init(allocator),
 
-    imports_map: std.StringHashMap([]const u8) = std.StringHashMap([]const u8).init(allocator),
+    imports_map: std.StringHashMap(Import) = std.StringHashMap(Import).init(allocator),
+
+    basic_types: std.StringHashMap(BasicType) = std.StringHashMap(BasicType).init(allocator),
 
     /// map of "package.fully.qualified.names" to output string lists (aka files)
     output_lists: std.AutoHashMap(*const descriptor.FileDescriptorProto, std.ArrayList([]const u8)) = std.AutoHashMap(*const descriptor.FileDescriptorProto, std.ArrayList([]const u8)).init(allocator),
 
     const Self = @This();
+    const BasicType = enum { resolving, basic, complex };
+    const Import = struct { ?*const descriptor.DescriptorProto, []const u8 };
 
     pub fn processRequest(self: *Self) !void {
         for (self.req.proto_file.items) |file| {
@@ -55,12 +59,13 @@ const GenerationContext = struct {
                 return;
             }
 
-            try self.imports_map.ensureUnusedCapacity(1000);
+            try self.imports_map.ensureTotalCapacity(1000);
             var prefix = try std.ArrayList(u8).initCapacity(allocator, file.package.?.getSlice().len + 128);
             prefix.appendAssumeCapacity('.');
             prefix.appendSliceAssumeCapacity(file.package.?.getSlice());
-            try self.registerMessages(file.name.?.getSlice(), &prefix, file.enum_type);
-            try self.registerMessages(file.name.?.getSlice(), &prefix, file.message_type);
+            try self.registerMessages(file.name.?.getSlice(), &prefix, file.enum_type.items);
+            try self.registerMessages(file.name.?.getSlice(), &prefix, file.message_type.items);
+            try self.basic_types.ensureTotalCapacity(self.imports_map.count());
         }
 
         for (self.req.proto_file.items) |*file| {
@@ -231,7 +236,7 @@ const GenerationContext = struct {
 
             const fullTypeName = FullName{ .buf = type_name.getSlice()[1..] };
 
-            const import = maybe_import.?;
+            const import = maybe_import.?[1];
             if (!std.mem.eql(u8, import, file.name.?.getSlice())) {
                 // We need to import from another file
                 return try std.fmt.allocPrint(ctx.allocator, "{s}.{s}", .{ try ctx.importName(import), fullTypeName.name().buf });
@@ -339,9 +344,10 @@ const GenerationContext = struct {
 
     fn isOptional(file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto) bool {
         if (is_proto3_file(file)) {
-            return field.proto3_optional == true;
+            return field.proto3_optional == true or field.type.? == .TYPE_MESSAGE;
         }
 
+        if (field.type.? == .TYPE_MESSAGE) return true;
         if (field.label) |l| {
             return l == .LABEL_OPTIONAL;
         } else {
@@ -358,16 +364,14 @@ const GenerationContext = struct {
         if (repeated) {
             prefix = "ArrayListU(";
             postfix = ")";
-        } else {
-            // union are already optional
-            if (ctx.isBasicType(field)) {
-                if (isOptional(file, field) and !is_union) {
-                    prefix = "?";
-                }
-            } else {
-                // union are already optional
-                prefix = if (is_union) "* const " else "?* const ";
+        } else if (ctx.isBasicType(field)) {
+            if (isOptional(file, field) and !is_union) {
+                // with union the option is on the union not on the union fields
+                prefix = "?";
             }
+        } else {
+            // with union the option is on the union not on the union fields
+            prefix = if (is_union) "*const " else "?*const ";
         }
 
         const infix: string = switch (t) {
@@ -385,24 +389,58 @@ const GenerationContext = struct {
                 @panic("Unrecognized type");
             },
         };
-
         return try std.mem.concat(allocator, u8, &.{ prefix, infix, postfix });
     }
 
-    fn isBasicType(ctx: Self, field: descriptor.FieldDescriptorProto) bool {
-        _ = ctx; // for now we don't use ctx but we need to to find simple types.
+    fn isBasicType(ctx: *Self, field: descriptor.FieldDescriptorProto) bool {
         // Repeated fields are just pointer.
         if (isRepeated(field)) return true;
 
         return switch (field.type.?) {
             .TYPE_SINT32, .TYPE_SFIXED32, .TYPE_INT32, .TYPE_UINT32, .TYPE_FIXED32, .TYPE_INT64, .TYPE_SINT64, .TYPE_SFIXED64, .TYPE_UINT64, .TYPE_FIXED64, .TYPE_BOOL, .TYPE_DOUBLE, .TYPE_FLOAT, .TYPE_STRING, .TYPE_BYTES, .TYPE_ENUM => true,
-            // TODO: we could be more fine-grained here, and allow simple messages to be treated differently.
-            .TYPE_MESSAGE => false,
-            else => |t| {
-                std.debug.print("Unrecognized type {}\n", .{t});
-                @panic("Unrecognized type");
+            .TYPE_MESSAGE => {
+                const type_name = field.type_name.?.getSlice();
+                return ctx.resolveTypeIsBasic(type_name);
             },
+            .TYPE_GROUP => @panic("Groups are deprecated and not supported in zig-protobuf"),
+            _ => @panic("Unrecognized type"),
         };
+    }
+
+    fn resolveTypeIsBasic(self: *Self, type_name: []const u8) bool {
+        const res = self.basic_types.getOrPut(type_name) catch unreachable;
+        if (res.found_existing) {
+            if (res.value_ptr.* == .resolving) {
+                // We've found a loop, break it by marking this type as complex.
+                res.value_ptr.* = .complex;
+                return false;
+            }
+            return res.value_ptr.* == .basic;
+        }
+        const desc_file = self.imports_map.get(type_name);
+        if (desc_file == null) {
+            std.log.warn("Type not found: {s}", .{type_name});
+            res.value_ptr.* = .complex;
+            return false;
+        }
+        const desc: *const descriptor.DescriptorProto = desc_file.?[0].?;
+        // Mark ourselves as resolving to detect loops.
+        res.value_ptr.* = .resolving;
+        for (desc.field.items) |field| {
+            switch (field.type.?) {
+                .TYPE_MESSAGE => {
+                    if (self.resolveTypeIsBasic(field.type_name.?.getSlice())) {
+                        continue;
+                    } else {
+                        res.value_ptr.* = .complex;
+                        return false;
+                    }
+                },
+                else => {},
+            }
+        }
+        res.value_ptr.* = .basic;
+        return true;
     }
 
     fn getFieldDefault(_: *Self, field: descriptor.FieldDescriptorProto, file: descriptor.FileDescriptorProto, nullable: bool) !?string {
@@ -531,8 +569,11 @@ const GenerationContext = struct {
         defer prefix.shrinkRetainingCapacity(original_len);
 
         try prefix.append('.');
+        // for convenience this fn also handle a slice of enum descriptor.
+        // but we need to handle recursion for messages.
+        const is_msg = @hasField(std.meta.Elem(@TypeOf(messages)), "nested_type");
 
-        for (messages.items) |msg| {
+        for (messages) |*msg| {
             const last_len = prefix.items.len;
             defer prefix.shrinkRetainingCapacity(last_len);
 
@@ -540,21 +581,47 @@ const GenerationContext = struct {
             var fqn = prefix.items;
             const res = try self.imports_map.getOrPut(fqn);
             if (res.found_existing) {
-                std.debug.assert(std.mem.eql(u8, file, res.value_ptr.*));
+                const prev_msg, const prev_file = res.value_ptr.*;
+                _ = prev_msg;
+                std.debug.assert(std.mem.eql(u8, file, prev_file));
             } else {
                 fqn = try allocator.dupe(u8, prefix.items);
                 res.key_ptr.* = fqn;
-                res.value_ptr.* = file;
+                res.value_ptr.* = .{ if (is_msg) msg else null, file };
             }
 
-            if (@hasField(@TypeOf(msg), "nested_type")) {
-                try self.registerMessages(file, prefix, msg.nested_type);
-            }
-            if (@hasField(@TypeOf(msg), "enum_type")) {
-                try self.registerMessages(file, prefix, msg.enum_type);
+            if (is_msg) {
+                try self.registerMessages(file, prefix, msg.nested_type.items);
+                try self.registerMessages(file, prefix, msg.enum_type.items);
             }
         }
     }
+
+    // fn resolveMessages(self: *Self, file: []const u8, messages: []const descriptor.DescriptorProto) !void {
+
+    //     for (messages.items) |msg| {
+    //         const res = self.basic_types.getOrPut(file);
+    //         if (res.found_existing) {
+
+    //         }
+    //         const last_len = prefix.items.len;
+
+    //         const res = try self.imports_map.getOrPut(fqn);
+    //         if (res.found_existing) {
+    //             std.debug.assert(std.mem.eql(u8, file, res.value_ptr.*));
+    //         } else {
+    //             res.key_ptr.* = fqn;
+    //             res.value_ptr.* = file;
+    //         }
+
+    //         if (@hasField(@TypeOf(msg), "nested_type")) {
+    //             try self.registerMessages(file, prefix, msg.nested_type);
+    //         }
+    //         if (@hasField(@TypeOf(msg), "enum_type")) {
+    //             try self.registerMessages(file, prefix, msg.enum_type);
+    //         }
+    //     }
+    // }
 
     fn generateMessages(ctx: *Self, list: *std.ArrayList(string), fqn: FullName, file: descriptor.FileDescriptorProto, messages: []const descriptor.DescriptorProto) !void {
         for (messages) |message| {
