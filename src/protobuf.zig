@@ -3,7 +3,7 @@ const StructField = std.builtin.Type.StructField;
 const isIntegral = std.meta.trait.isIntegral;
 const Allocator = std.mem.Allocator;
 const testing = std.testing;
-
+const log = std.log.scoped(.protobuf);
 // common definitions
 
 const Writer = std.ArrayList(u8);
@@ -899,7 +899,7 @@ fn decode_value(comptime decoded_type: type, comptime ftype: FieldType, extracte
             else => error.InvalidInput,
         },
         else => {
-            std.debug.print("Invalid scalar type {any}\n", .{ftype});
+            log.err("Invalid scalar type {any}\n", .{ftype});
             return error.InvalidInput;
         },
     };
@@ -1022,7 +1022,7 @@ pub fn pb_decode(comptime T: type, input: []const u8, allocator: Allocator) Unio
                 break try decode_data(T, v, field, &result, extracted_data, allocator);
             }
         } else {
-            std.debug.print("Unknown field received in {s} {any}\n", .{ @typeName(T), extracted_data });
+            // log.debug("Unknown field received in {s}: {{ .tag:{d}, .field_number: {d}}}", .{ @typeName(T), extracted_data.tag, extracted_data.field_number });
         }
     }
 
