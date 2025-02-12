@@ -6,11 +6,13 @@ const descriptor = @import("google/protobuf/descriptor.pb.zig");
 const mem = std.mem;
 const FullName = @import("./FullName.zig").FullName;
 
-const USE_MODULES = false;
+const USE_MODULES = true;
 
 const allocator = std.heap.page_allocator;
 
 const string = []const u8;
+
+pub const std_options: std.Options = .{ .log_scope_levels = &[_]std.log.ScopeLevel{.{ .level = .warn, .scope = .zig_protobuf }} };
 
 pub fn main() !void {
     // Read the contents (up to 10MB)
@@ -525,7 +527,8 @@ const GenerationContext = struct {
             .TYPE_FLOAT, .TYPE_SFIXED32, .TYPE_FIXED32 => ".{ .FixedInt = .I32 }",
             .TYPE_ENUM, .TYPE_UINT32, .TYPE_UINT64, .TYPE_BOOL, .TYPE_INT32, .TYPE_INT64 => ".{ .Varint = .Simple }",
             .TYPE_SINT32, .TYPE_SINT64 => ".{ .Varint = .ZigZagOptimized }",
-            .TYPE_STRING, .TYPE_BYTES => ".String",
+            .TYPE_STRING => ".String",
+            .TYPE_BYTES => ".Bytes",
             .TYPE_MESSAGE => if (ctx.isBasicType(field) or isRepeated(field)) ".{ .SubMessage = {} }" else ".{ .AllocMessage = {} }",
             else => {
                 std.debug.print("Unrecognized type {}\n", .{field.type.?});
