@@ -26,9 +26,9 @@ test "leak in allocated string" {
 }
 
 test "leak in list of allocated bytes" {
-    var my_bytes = std.ArrayList(protobuf.ManagedString).init(testing.allocator);
-    try my_bytes.append(protobuf.ManagedString{ .Const = "abcdef" });
-    defer my_bytes.deinit();
+    var my_bytes: std.ArrayListUnmanaged(protobuf.ManagedString) = .{};
+    try my_bytes.append(testing.allocator, protobuf.ManagedString{ .Const = "abcdef" });
+    defer my_bytes.deinit(testing.allocator);
 
     var msg = tests.WithRepeatedBytes{
         .byte_field = my_bytes,
@@ -37,6 +37,6 @@ test "leak in list of allocated bytes" {
     const buffer = try msg.encode(testing.allocator);
     defer testing.allocator.free(buffer);
 
-    const msg_copy = try tests.WithRepeatedBytes.decode(buffer, testing.allocator);
-    msg_copy.deinit();
+    var msg_copy = try tests.WithRepeatedBytes.decode(buffer, testing.allocator);
+    msg_copy.deinit(testing.allocator);
 }

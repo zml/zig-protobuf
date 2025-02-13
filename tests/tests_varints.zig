@@ -398,8 +398,6 @@ test "basic encoding with negative numbers" {
 }
 
 fn check(object: anytype, expected: []const u8) !void {
-    defer object.deinit();
-
     const obtained = try object.encode(testing.allocator);
     defer testing.allocator.free(obtained);
     const buffer = try testing.allocator.alloc(u8, expected.len);

@@ -82,6 +82,10 @@ message WithRepeatedStrings {
   repeated string name = 1;
 }
 
+message WithRepeatedBytes {
+  repeated bytes byte_field = 1;
+}
+
 message WithDeps {
   FixedSizes fixed = 1;
 }

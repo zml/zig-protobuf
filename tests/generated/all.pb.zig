@@ -166,6 +166,16 @@ pub const WithRepeatedStrings = struct {
     pub usingnamespace protobuf.MessageMixins(@This());
 };
 
+pub const WithRepeatedBytes = struct {
+    byte_field: ArrayListU(ManagedString) = .{},
+
+    pub const _desc_table = .{
+        .byte_field = fd(1, .{ .List = .Bytes }),
+    };
+
+    pub usingnamespace protobuf.MessageMixins(@This());
+};
+
 pub const WithDeps = struct {
     fixed: ?fixedsizes_proto.FixedSizes = null,
 

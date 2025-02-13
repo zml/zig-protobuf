@@ -543,7 +543,8 @@ pub fn pb_dupe(comptime T: type, original: T, allocator: Allocator) Allocator.Er
 /// Internal dupe function for a specific field
 fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype: FieldType, allocator: Allocator) Allocator.Error!@TypeOf(@field(original, field_name)) {
     const field = @field(original, field_name);
-    switch (ftype) {
+    const T = @TypeOf(field);
+    return switch (ftype) {
         .Varint, .FixedInt => {
             return @field(original, field_name);
         },
@@ -553,12 +554,12 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
             switch (list_type) {
                 .SubMessage, .String => {
                     for (@field(original, field_name).items) |item| {
-                        try list.appendAssumeCapacity(try item.dupe(allocator));
+                        list.appendAssumeCapacity(try item.dupe(allocator));
                     }
                 },
                 .Varint, .Bytes, .FixedInt => {
                     for (@field(original, field_name).items) |item| {
-                        try list.appendAssumeCapacity(item);
+                        list.appendAssumeCapacity(item);
                     }
                 },
             }
@@ -586,7 +587,7 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
                 else => return try @field(original, field_name).dupe(allocator),
             }
         },
-        .AllocMessage => switch (@typeInfo(FieldType)) {
+        .AllocMessage => switch (@typeInfo(T)) {
             .optional => {
                 if (field) |val| {
                     const res = try allocator.create(@TypeOf(val.*));
@@ -596,12 +597,12 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
                     return null;
                 }
             },
-            .Pointer => {
+            .pointer => {
                 const res = try allocator.create(@TypeOf(field.*));
                 res.* = try field.dupe(allocator);
                 return res;
             },
-            else => @compileLog("dupe_field", ftype, field_name, FieldType),
+            else => @compileLog("dupe_field", ftype, field_name, T),
         },
         .OneOf => |one_of| {
             // if the value is set, inline-iterate over the possible OneOfs
@@ -619,18 +620,11 @@ fn dupe_field(original: anytype, comptime field_name: []const u8, comptime ftype
             }
             return null;
         },
-    }
+    };
 }
 
 /// Generic deinit function. Properly initialise any field required. Meant to be embedded in generated structs.
-pub fn pb_deinit(allocator: std.mem.Allocator, data: anytype) void {
-    const type_info_value = @typeInfo(@TypeOf(data));
-    if (type_info_value != .pointer or type_info_value.pointer.is_const) {
-        @compileError("deinit_value need to receive argument by mutable pointer ! got: " ++ @typeName(@TypeOf(data)));
-    }
-
-    // Unwrap pointers and optionals types.
-    const T = type_info_value.pointer.child;
+pub fn pb_deinit(T: type, allocator: std.mem.Allocator, data: *T) void {
     switch (@typeInfo(T)) {
         .optional => {
             if (data.*) |*payload| {
@@ -646,7 +640,7 @@ pub fn pb_deinit(allocator: std.mem.Allocator, data: anytype) void {
         },
         .@"struct" => {
             inline for (@typeInfo(T).@"struct".fields) |field| {
-                deinit_field(allocator, data, field.name, @field(T._desc_table, field.name).ftype);
+                deinit_field(field.type, @field(T._desc_table, field.name).ftype, allocator, &@field(data, field.name));
             }
         },
         else => {},
@@ -654,53 +648,64 @@ pub fn pb_deinit(allocator: std.mem.Allocator, data: anytype) void {
 }
 
 /// Internal deinit function for a specific field
-fn deinit_field(allocator: std.mem.Allocator, result: anytype, comptime field_name: []const u8, comptime ftype: FieldType) void {
+fn deinit_field(T: type, ftype: FieldType, allocator: std.mem.Allocator, field: *T) void {
     switch (ftype) {
         .Varint, .FixedInt => {},
-        .SubMessage, .AllocMessage => {
-            switch (@typeInfo(@TypeOf(@field(result, field_name)))) {
-                .optional => if (@field(result, field_name)) |*submessage| {
+        .SubMessage => {
+            switch (@typeInfo(T)) {
+                .optional => if (field.*) |*submessage| {
                     submessage.deinit(allocator);
                 },
-                .@"struct" => @field(result, field_name).deinit(allocator),
+                .@"struct" => @constCast(field).deinit(allocator),
                 else => @compileError("unreachable"),
+            }
+        },
+        .AllocMessage => {
+            switch (@typeInfo(T)) {
+                .optional => if (field.*) |submessage| {
+                    @constCast(submessage).deinit(allocator);
+                    allocator.destroy(@constCast(submessage));
+                },
+                .pointer => |ptr_info| pb_deinit(ptr_info.child, allocator, @constCast(field.*)),
+                .@"struct" => {
+                    field.deinit(allocator);
+                    allocator.destroy(field);
+                },
+                else => @compileLog("deinit AllocMessage", T, FieldType),
             }
         },
         .List => |list_type| {
             switch (list_type) {
                 .SubMessage, .String, .Bytes => {
-                    for (@field(result, field_name).items) |*item| {
+                    for (field.items) |*item| {
                         item.deinit(allocator);
                     }
                 },
                 .Varint, .FixedInt => {},
             }
-            @field(result, field_name).deinit(allocator);
+            field.deinit(allocator);
         },
         .PackedList => |_| {
-            @field(result, field_name).deinit(allocator);
+            field.deinit(allocator);
         },
         .String, .Bytes => {
-            switch (@typeInfo(@TypeOf(@field(result, field_name)))) {
+            switch (@typeInfo(T)) {
                 .optional => {
-                    if (@field(result, field_name)) |str| {
+                    if (field.*) |str| {
                         str.deinit(allocator);
                     }
                 },
-                else => @field(result, field_name).deinit(allocator),
+                else => field.deinit(allocator),
             }
         },
         .OneOf => |union_type| {
             // if the value is set, inline-iterate over the possible OneOfs
-            if (@field(result, field_name)) |union_value| {
-                const active = @tagName(union_value);
-                inline for (@typeInfo(@TypeOf(union_type._union_desc)).Struct.fields) |union_field| {
-                    // and if one matches the actual tagName of the union
-                    if (std.mem.eql(u8, union_field.name, active)) {
-                        // deinit the current value
-                        deinit_field(allocator, union_value, union_field.name, @field(union_type._union_desc, union_field.name).ftype);
-                    }
-                }
+            if (field.* == null) return;
+            switch (field.*.?) {
+                inline else => |*union_value, tag| {
+                    const UnionT = @TypeOf(union_value.*);
+                    deinit_field(UnionT, @field(union_type._union_desc, @tagName(tag)).ftype, allocator, union_value);
+                },
             }
         },
     }
@@ -1008,7 +1013,7 @@ fn decode_value(comptime decoded_type: type, comptime ftype: FieldType, extracte
         },
         .AllocMessage => switch (extracted_data.data) {
             .Slice => |slice| switch (@typeInfo(decoded_type)) {
-                .Pointer => |info| {
+                .pointer => |info| {
                     const res = try allocator.create(info.child);
                     res.* = try pb_decode(info.child, slice, allocator);
                     return res;
@@ -1032,10 +1037,10 @@ fn decode_value(comptime decoded_type: type, comptime ftype: FieldType, extracte
 fn Unwrap(comptime T: type) type {
     return switch (@typeInfo(T)) {
         .optional => |opt| switch (@typeInfo(opt.child)) {
-            .Pointer => |ptr| ptr.child,
+            .pointer => |ptr| ptr.child,
             else => |child| child,
         },
-        .Pointer => |ptr| ptr.child,
+        .pointer => |ptr| ptr.child,
         else => @compileError(@typeName(T) ++ " isn't wrapped"),
     };
 }
@@ -1044,7 +1049,7 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
     switch (field_desc.ftype) {
         .Varint, .FixedInt, .SubMessage, .String, .Bytes => {
             // first try to release the current value
-            deinit_field(allocator, result, field.name, field_desc.ftype);
+            deinit_field(@TypeOf(@field(result, field.name)), field_desc.ftype, allocator, &@field(result, field.name));
 
             // then apply the new value
             switch (@typeInfo(field.type)) {
@@ -1078,7 +1083,7 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
                 .FixedInt => |_| {
                     switch (extracted_data.data) {
                         .RawValue => |value| try @field(result, field.name).append(allocator, decode_fixed_value(child_type, value)),
-                        .Slice => |slice| try decode_packed_list(slice, list_type, child_type, @field(result, field.name), allocator),
+                        .Slice => |slice| try decode_packed_list(slice, list_type, child_type, &@field(result, field.name), allocator),
                     }
                 },
                 .SubMessage => switch (extracted_data.data) {
@@ -1104,7 +1109,7 @@ fn decode_data(comptime T: type, comptime field_desc: FieldDescriptor, comptime 
                 const v = @field(desc_union, union_field.name);
                 if (is_tag_known(v, extracted_data)) {
                     // deinit the current value of the enum to prevent leaks
-                    deinit_field(result, field.name, field_desc.ftype);
+                    deinit_field(@FieldType(T, field.name), field_desc.ftype, allocator, &@field(result, field.name));
 
                     // and decode & assign the new value
                     const value = try decode_value(union_field.type, v.ftype, extracted_data, allocator);
@@ -1223,13 +1228,13 @@ fn parseStructField(
                     const child_type = @typeInfo(
                         fieldInfo.type.Slice,
                     ).pointer.child;
-                    var array_list = ArrayListU(child_type).init(allocator);
+                    var array_list: ArrayListU(child_type) = .{};
                     while (true) {
                         if (.array_end == try source.peekNextTokenType()) {
                             _ = try source.next();
                             break;
                         }
-                        try array_list.ensureUnusedCapacity(1);
+                        try array_list.ensureUnusedCapacity(allocator, 1);
                         array_list.appendAssumeCapacity(switch (list_type) {
                             .Bytes => try parse_bytes(allocator, source, options),
                             .Varint, .FixedInt, .SubMessage, .String => other: {
@@ -1304,7 +1309,7 @@ fn parseStructField(
                                     options,
                                 );
                             },
-                            .Varint, .FixedInt, .SubMessage, .String => other: {
+                            .Varint, .FixedInt, .SubMessage, .AllocMessage, .String => other: {
                                 break :other try json.innerParse(
                                     union_field.type,
                                     allocator,
@@ -1331,7 +1336,7 @@ fn parseStructField(
             // "bytes" -> ManagedString
             break :bytes try parse_bytes(allocator, source, options);
         },
-        .Varint, .FixedInt, .SubMessage, .String => other: {
+        .Varint, .FixedInt, .SubMessage, .AllocMessage, .String => other: {
             // .SubMessage's (generated structs) and .String's
             //   (ManagedString's) have its own jsonParse implementation
             // Numeric types will be handled using default std.json parser
@@ -1370,31 +1375,8 @@ pub fn pb_json_encode(
     return try json.stringifyAlloc(allocator, data, options);
 }
 
-fn to_camel_case(not_camel_cased_string: []const u8) []const u8 {
-    comptime var capitalize_next_letter = false;
-    comptime var camel_cased_string: []const u8 = "";
-    comptime var i: usize = 0;
-
-    inline for (not_camel_cased_string) |char| {
-        if (char == '_') {
-            capitalize_next_letter = i > 0;
-        } else if (capitalize_next_letter) {
-            camel_cased_string = camel_cased_string ++ .{
-                comptime std.ascii.toUpper(char),
-            };
-            capitalize_next_letter = false;
-            i += 1;
-        } else {
-            camel_cased_string = camel_cased_string ++ .{char};
-            i += 1;
-        }
-    }
-
-    if (comptime std.ascii.isUpper(camel_cased_string[0])) {
-        camel_cased_string[0] = std.ascii.toLower(camel_cased_string[0]);
-    }
-
-    return camel_cased_string;
+fn to_camel_case(comptime not_camel_cased_string: []const u8) []const u8 {
+    return not_camel_cased_string;
 }
 
 fn print_numeric(value: anytype, jws: anytype) !void {
@@ -1557,6 +1539,9 @@ fn stringify_struct_field(
                         .String, .SubMessage => {
                             try jws.write(@field(value, union_field.name));
                         },
+                        .AllocMessage => {
+                            try jws.write(@field(value, union_field.name));
+                        },
                         .List, .PackedList => {
                             @compileError("Repeated fields are not allowed in oneof");
                         },
@@ -1572,6 +1557,9 @@ fn stringify_struct_field(
         },
         .Varint, .FixedInt => {
             try print_numeric(value, jws);
+        },
+        .AllocMessage => {
+            try jws.write(value.*);
         },
         .SubMessage, .String => {
             // .SubMessage's (generated structs) and .String's
@@ -1596,7 +1584,7 @@ pub fn MessageMixins(comptime Self: type) type {
             return pb_init(Self);
         }
         pub fn deinit(self: *Self, allocator: std.mem.Allocator) void {
-            return pb_deinit(allocator, self);
+            return pb_deinit(Self, allocator, self);
         }
         pub fn dupe(self: Self, allocator: Allocator) Allocator.Error!Self {
             return pb_dupe(Self, self, allocator);
@@ -1722,7 +1710,7 @@ pub fn MessageMixins(comptime Self: type) type {
             try jws.beginObject();
 
             inline for (@typeInfo(Self).@"struct".fields) |fieldInfo| {
-                const camel_case_name = comptime to_camel_case(fieldInfo.name);
+                const camel_case_name = fieldInfo.name;
 
                 if (switch (@typeInfo(fieldInfo.type)) {
                     .optional => @field(self, fieldInfo.name) != null,

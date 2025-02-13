@@ -96,7 +96,7 @@ pub const BytesValue = struct {
     value: ManagedString = .Empty,
 
     pub const _desc_table = .{
-        .value = fd(1, .String),
+        .value = fd(1, .Bytes),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());

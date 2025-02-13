@@ -18,7 +18,7 @@ pub const Any = struct {
 
     pub const _desc_table = .{
         .type_url = fd(1, .String),
-        .value = fd(2, .String),
+        .value = fd(2, .Bytes),
     };
 
     pub usingnamespace protobuf.MessageMixins(@This());
