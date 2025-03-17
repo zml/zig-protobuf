@@ -19,7 +19,15 @@ pub const WouldYouParseThisForMePlease = struct {
         .field = fd(1, .{ .SubMessage = {} }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Test = struct {
@@ -29,5 +37,13 @@ pub const Test = struct {
         .field = fd(1, .String),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
