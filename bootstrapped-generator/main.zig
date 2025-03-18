@@ -50,13 +50,14 @@ const GenerationContext = struct {
 
     const Self = @This();
     const BasicType = enum { resolving, basic, complex };
-    const Import = struct { ?*const descriptor.DescriptorProto, []const u8 };
+    const Import = struct {
+        file: *const descriptor.FileDescriptorProto,
+        descriptor: ?*const descriptor.DescriptorProto,
+    };
 
     pub fn processRequest(self: *Self) !void {
-        for (self.req.proto_file.items) |file| {
-            const t: descriptor.FileDescriptorProto = file;
-
-            if (t.package) |package| {
+        for (self.req.proto_file.items) |*file| {
+            if (file.package) |package| {
                 try self.known_packages.put(package.getSlice(), FullName{ .buf = package.getSlice() });
             } else {
                 self.res.@"error" = pb.ManagedString{ .Owned = try std.fmt.allocPrint(allocator, "ERROR Package directive missing in {?s}\n", .{file.name.?.getSlice()}) };
@@ -67,8 +68,8 @@ const GenerationContext = struct {
             var prefix = try std.ArrayList(u8).initCapacity(allocator, file.package.?.getSlice().len + 128);
             prefix.appendAssumeCapacity('.');
             prefix.appendSliceAssumeCapacity(file.package.?.getSlice());
-            try self.registerMessages(file.name.?.getSlice(), &prefix, file.enum_type.items);
-            try self.registerMessages(file.name.?.getSlice(), &prefix, file.message_type.items);
+            try self.registerMessages(file, &prefix, file.enum_type.items);
+            try self.registerMessages(file, &prefix, file.message_type.items);
             try self.basic_types.ensureTotalCapacity(self.imports_map.count());
         }
 
@@ -232,19 +233,19 @@ const GenerationContext = struct {
 
     fn fieldTypeFqn(ctx: *Self, parentFqn: FullName, file: descriptor.FileDescriptorProto, field: descriptor.FieldDescriptorProto) !string {
         if (field.type_name) |type_name| {
-            const maybe_import = ctx.imports_map.get(type_name.getSlice());
-            // Swallow the error, Zig will generate a better one later when compiling.
-            if (maybe_import == null) {
+            const import = ctx.imports_map.get(type_name.getSlice()) orelse {
+                // Swallow the error, Zig will generate a better one later when compiling.
                 std.log.err("Unknown type: {}", .{type_name});
                 return type_name.getSlice()[1..];
-            }
+            };
 
             const fullTypeName = FullName{ .buf = type_name.getSlice()[1..] };
 
-            const import = maybe_import.?[1];
-            if (!std.mem.eql(u8, import, file.name.?.getSlice())) {
+            const import_file_name = import.file.name.?.getSlice();
+            if (!std.mem.eql(u8, import_file_name, file.name.?.getSlice())) {
                 // We need to import from another file
-                return try std.fmt.allocPrint(ctx.allocator, "{s}.{s}", .{ try ctx.importName(import), fullTypeName.name().buf });
+                const fqname = type_name.getSlice()[1 + import.file.package.?.getSlice().len + 1 ..];
+                return try std.fmt.allocPrint(ctx.allocator, "{s}.{s}", .{ try ctx.importName(import_file_name), fqname });
             }
 
             // We are in the file declaring this symbol, so no need to import.
@@ -425,13 +426,12 @@ const GenerationContext = struct {
             }
             return res.value_ptr.* == .basic;
         }
-        const desc_file = self.imports_map.get(type_name);
-        if (desc_file == null) {
+        const desc_file = self.imports_map.get(type_name) orelse {
             std.log.warn("Type not found: {s}", .{type_name});
             res.value_ptr.* = .complex;
             return false;
-        }
-        const desc: *const descriptor.DescriptorProto = desc_file.?[0].?;
+        };
+        const desc: *const descriptor.DescriptorProto = desc_file.descriptor.?;
         // Mark ourselves as resolving to detect loops.
         res.value_ptr.* = .resolving;
         for (desc.field.items) |field| {
@@ -579,7 +579,7 @@ const GenerationContext = struct {
         return count;
     }
 
-    fn registerMessages(self: *Self, file: []const u8, prefix: *std.ArrayList(u8), messages: anytype) !void {
+    fn registerMessages(self: *Self, file: *const descriptor.FileDescriptorProto, prefix: *std.ArrayList(u8), messages: anytype) !void {
         const original_len = prefix.items.len;
         defer prefix.shrinkRetainingCapacity(original_len);
 
@@ -596,13 +596,15 @@ const GenerationContext = struct {
             var fqn = prefix.items;
             const res = try self.imports_map.getOrPut(fqn);
             if (res.found_existing) {
-                const prev_msg, const prev_file = res.value_ptr.*;
-                _ = prev_msg;
-                std.debug.assert(std.mem.eql(u8, file, prev_file));
+                const prev = res.value_ptr.*;
+                std.debug.assert(std.mem.eql(u8, file.name.?.getSlice(), prev.file.name.?.getSlice()));
             } else {
                 fqn = try allocator.dupe(u8, prefix.items);
                 res.key_ptr.* = fqn;
-                res.value_ptr.* = .{ if (is_msg) msg else null, file };
+                res.value_ptr.* = .{
+                    .file = file,
+                    .descriptor = if (is_msg) msg else null,
+                };
             }
 
             if (is_msg) {
