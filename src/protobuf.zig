@@ -7,14 +7,14 @@ const json = std.json;
 const base64 = std.base64;
 const base64Errors = std.base64.Error;
 const ParseFromValueError = std.json.ParseFromValueError;
+const ArrayListU = std.ArrayListUnmanaged;
+const assert = std.debug.assert;
 
 const log = std.log.scoped(.zig_protobuf);
 
 // common definitions
 
 const Writer = std.ArrayList(u8);
-const ArrayListU = std.ArrayListUnmanaged;
-
 /// Type of encoding for a Varint value.
 const VarintType = enum { Simple, ZigZagOptimized };
 
@@ -1438,8 +1438,6 @@ fn jsonIndent(jws: anytype) !void {
     try jws.stream.writeByte('\n');
     try jws.stream.writeByteNTimes(char, n_chars);
 }
-
-const assert = std.debug.assert;
 
 fn jsonIsComplete(jws: anytype) bool {
     return jws.indent_level == 0 and jws.next_punctuation == .comma;

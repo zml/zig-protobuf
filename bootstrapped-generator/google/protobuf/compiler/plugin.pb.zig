@@ -29,7 +29,6 @@ pub const Version = struct {
 
     pub const encode = protobuf.MessageMixins(@This()).encode;
     pub const decode = protobuf.MessageMixins(@This()).decode;
-    pub const init = protobuf.MessageMixins(@This()).init;
     pub const deinit = protobuf.MessageMixins(@This()).deinit;
     pub const dupe = protobuf.MessageMixins(@This()).dupe;
     pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
@@ -53,7 +52,6 @@ pub const CodeGeneratorRequest = struct {
 
     pub const encode = protobuf.MessageMixins(@This()).encode;
     pub const decode = protobuf.MessageMixins(@This()).decode;
-    pub const init = protobuf.MessageMixins(@This()).init;
     pub const deinit = protobuf.MessageMixins(@This()).deinit;
     pub const dupe = protobuf.MessageMixins(@This()).dupe;
     pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
@@ -94,7 +92,6 @@ pub const CodeGeneratorResponse = struct {
 
         pub const encode = protobuf.MessageMixins(@This()).encode;
         pub const decode = protobuf.MessageMixins(@This()).decode;
-        pub const init = protobuf.MessageMixins(@This()).init;
         pub const deinit = protobuf.MessageMixins(@This()).deinit;
         pub const dupe = protobuf.MessageMixins(@This()).dupe;
         pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
@@ -105,7 +102,6 @@ pub const CodeGeneratorResponse = struct {
 
     pub const encode = protobuf.MessageMixins(@This()).encode;
     pub const decode = protobuf.MessageMixins(@This()).decode;
-    pub const init = protobuf.MessageMixins(@This()).init;
     pub const deinit = protobuf.MessageMixins(@This()).deinit;
     pub const dupe = protobuf.MessageMixins(@This()).dupe;
     pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;

@@ -1,14 +1,15 @@
-const warn = @import("std").debug.warn;
 const std = @import("std");
+const mem = std.mem;
+const allocator = std.heap.page_allocator;
+const warn = @import("std").debug.warn;
+
 const pb = @import("protobuf");
+
+const FullName = @import("./FullName.zig").FullName;
 const plugin = @import("google/protobuf/compiler/plugin.pb.zig");
 const descriptor = @import("google/protobuf/descriptor.pb.zig");
-const mem = std.mem;
-const FullName = @import("./FullName.zig").FullName;
 
-const USE_MODULES = false;
-
-const allocator = std.heap.page_allocator;
+const USE_MODULES = true;
 
 const string = []const u8;
 
@@ -80,11 +81,11 @@ const GenerationContext = struct {
 
         var it = self.output_lists.iterator();
         while (it.next()) |entry| {
-            var ret = plugin.CodeGeneratorResponse.File.init();
-
             const pb_name = try self.outputFileName(entry.key_ptr.*);
-            ret.name = pb.ManagedString.move(pb_name, allocator);
-            ret.content = pb.ManagedString.move(try std.mem.concat(allocator, u8, entry.value_ptr.*.items), allocator);
+            const ret: plugin.CodeGeneratorResponse.File = .{
+                .name = .move(pb_name, allocator),
+                .content = .move(try std.mem.concat(allocator, u8, entry.value_ptr.*.items), allocator),
+            };
             try self.res.file.append(allocator, ret);
         }
 
@@ -726,7 +727,6 @@ const GenerationContext = struct {
                 \\
                 \\   pub const encode = protobuf.MessageMixins(@This()).encode;
                 \\   pub const decode = protobuf.MessageMixins(@This()).decode;
-                \\   pub const init = protobuf.MessageMixins(@This()).init;
                 \\   pub const deinit = protobuf.MessageMixins(@This()).deinit;
                 \\   pub const dupe = protobuf.MessageMixins(@This()).dupe;
                 \\   pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
