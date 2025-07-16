@@ -29,7 +29,15 @@ pub const InventoryItem = struct {
         .id = fd(6, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Character = struct {
@@ -63,7 +71,15 @@ pub const Character = struct {
         .enabled = fd(13, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Alignment = struct {
@@ -77,7 +93,15 @@ pub const Alignment = struct {
         .color = fd(3, .String),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Index = struct {
@@ -106,10 +130,26 @@ pub const Index = struct {
             .value = fd(2, .{ .Varint = .Simple }),
         };
 
-        pub usingnamespace protobuf.MessageMixins(@This());
+        pub const encode = protobuf.MessageMixins(@This()).encode;
+        pub const decode = protobuf.MessageMixins(@This()).decode;
+        pub const init = protobuf.MessageMixins(@This()).init;
+        pub const deinit = protobuf.MessageMixins(@This()).deinit;
+        pub const dupe = protobuf.MessageMixins(@This()).dupe;
+        pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+        pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+        pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+        pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const StoredChunk = struct {
@@ -121,7 +161,15 @@ pub const StoredChunk = struct {
         .entities = fd(2, .{ .List = .{ .SubMessage = {} } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const MapEntity = struct {
@@ -143,7 +191,15 @@ pub const MapEntity = struct {
         .vertical_graphic = fd(7, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Light = struct {
@@ -161,7 +217,15 @@ pub const Light = struct {
         .fall_off = fd(5, .{ .FixedInt = .I32 }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Point = struct {
@@ -173,7 +237,15 @@ pub const Point = struct {
         .y = fd(2, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Shape = struct {
@@ -183,7 +255,15 @@ pub const Shape = struct {
         .points = fd(1, .{ .List = .{ .SubMessage = {} } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Npc = struct {
@@ -230,7 +310,15 @@ pub const Npc = struct {
             .value = fd(2, .{ .Varint = .Simple }),
         };
 
-        pub usingnamespace protobuf.MessageMixins(@This());
+        pub const encode = protobuf.MessageMixins(@This()).encode;
+        pub const decode = protobuf.MessageMixins(@This()).decode;
+        pub const init = protobuf.MessageMixins(@This()).init;
+        pub const deinit = protobuf.MessageMixins(@This()).deinit;
+        pub const dupe = protobuf.MessageMixins(@This()).dupe;
+        pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+        pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+        pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+        pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
     };
 
     pub const AbilitiesEntry = struct {
@@ -242,10 +330,26 @@ pub const Npc = struct {
             .value = fd(2, .{ .Varint = .Simple }),
         };
 
-        pub usingnamespace protobuf.MessageMixins(@This());
+        pub const encode = protobuf.MessageMixins(@This()).encode;
+        pub const decode = protobuf.MessageMixins(@This()).decode;
+        pub const init = protobuf.MessageMixins(@This()).init;
+        pub const deinit = protobuf.MessageMixins(@This()).deinit;
+        pub const dupe = protobuf.MessageMixins(@This()).dupe;
+        pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+        pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+        pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+        pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Tile = struct {
@@ -271,7 +375,15 @@ pub const Tile = struct {
         .layer4 = fd(9, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const MapItem = struct {
@@ -287,7 +399,15 @@ pub const MapItem = struct {
         .amount = fd(4, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const GraphicsDB = struct {
@@ -315,7 +435,15 @@ pub const GraphicsDB = struct {
         .spine = fd(11, .{ .List = .{ .SubMessage = {} } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Script = struct {
@@ -327,7 +455,15 @@ pub const Script = struct {
         .code = fd(2, .String),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const SubTexture = struct {
@@ -345,7 +481,15 @@ pub const SubTexture = struct {
         .height = fd(5, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Texture = struct {
@@ -369,7 +513,15 @@ pub const Texture = struct {
         .dxt5 = fd(8, .{ .SubMessage = {} }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Graphic = struct {
@@ -390,7 +542,15 @@ pub const Graphic = struct {
         .type = fd(null, .{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .type)) }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Sprite = struct {
@@ -412,7 +572,15 @@ pub const Sprite = struct {
         .pivot_y = fd(7, .{ .Varint = .Simple }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Animation = struct {
@@ -424,7 +592,15 @@ pub const Animation = struct {
         .speed = fd(2, .{ .FixedInt = .I32 }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Spine = struct {
@@ -438,5 +614,13 @@ pub const Spine = struct {
         .atlas = fd(3, .String),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };

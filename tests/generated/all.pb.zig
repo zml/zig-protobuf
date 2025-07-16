@@ -50,7 +50,15 @@ pub const WithEnum = struct {
         _,
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithEnumShadow = struct {
@@ -67,7 +75,15 @@ pub const WithEnumShadow = struct {
         _,
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const RepeatedEnum = struct {
@@ -77,7 +93,15 @@ pub const RepeatedEnum = struct {
         .value = fd(1, .{ .List = .{ .Varint = .Simple } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const Packed = struct {
@@ -105,7 +129,15 @@ pub const Packed = struct {
         .enum_list = fd(10, .{ .PackedList = .{ .Varint = .Simple } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const UnPacked = struct {
@@ -133,7 +165,15 @@ pub const UnPacked = struct {
         .enum_list = fd(10, .{ .List = .{ .Varint = .Simple } }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithSubmessages = struct {
@@ -143,7 +183,15 @@ pub const WithSubmessages = struct {
         .with_enum = fd(1, .{ .SubMessage = {} }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithStrings = struct {
@@ -153,7 +201,15 @@ pub const WithStrings = struct {
         .name = fd(1, .String),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithRepeatedStrings = struct {
@@ -163,7 +219,15 @@ pub const WithRepeatedStrings = struct {
         .name = fd(1, .{ .List = .String }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithRepeatedBytes = struct {
@@ -173,7 +237,15 @@ pub const WithRepeatedBytes = struct {
         .byte_field = fd(1, .{ .List = .Bytes }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
 
 pub const WithDeps = struct {
@@ -183,5 +255,13 @@ pub const WithDeps = struct {
         .fixed = fd(1, .{ .SubMessage = {} }),
     };
 
-    pub usingnamespace protobuf.MessageMixins(@This());
+    pub const encode = protobuf.MessageMixins(@This()).encode;
+    pub const decode = protobuf.MessageMixins(@This()).decode;
+    pub const init = protobuf.MessageMixins(@This()).init;
+    pub const deinit = protobuf.MessageMixins(@This()).deinit;
+    pub const dupe = protobuf.MessageMixins(@This()).dupe;
+    pub const jsonStringify = protobuf.MessageMixins(@This()).jsonStringify;
+    pub const json_decode = protobuf.MessageMixins(@This()).json_decode;
+    pub const json_encode = protobuf.MessageMixins(@This()).json_encode;
+    pub const jsonParse = protobuf.MessageMixins(@This()).jsonParse;
 };
