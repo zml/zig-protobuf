@@ -20,7 +20,7 @@ pub fn printAllDecoded(input: []const u8) !void {
 test "long package" {
     // - this test allocates an object only. used to instruct zig to try to compile the file
     // - it also ensures that SubMessage deinit() works
-    var demo = longName.WouldYouParseThisForMePlease.init();
+    var demo = longName.WouldYouParseThisForMePlease{};
     demo.field = .{ .field = .{ .Const = "asd" } };
 
     const obtained = try demo.encode(testing.allocator);
@@ -28,7 +28,7 @@ test "long package" {
 }
 
 test "packed int32_list encoding" {
-    var demo = tests.Packed.init();
+    var demo = tests.Packed{};
     try demo.int32_list.append(testing.allocator, 0x01);
     try demo.int32_list.append(testing.allocator, 0x02);
     try demo.int32_list.append(testing.allocator, 0x03);
@@ -56,7 +56,7 @@ test "packed int32_list encoding" {
 }
 
 test "unpacked int32_list" {
-    var demo = tests.UnPacked.init();
+    var demo = tests.UnPacked{};
     try demo.int32_list.append(testing.allocator, 0x01);
     try demo.int32_list.append(testing.allocator, 0x02);
     try demo.int32_list.append(testing.allocator, 0x03);

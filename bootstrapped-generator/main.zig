@@ -685,7 +685,7 @@ const GenerationContext = struct {
 
                     try list.append(
                         \\      };
-                        \\    },
+                        \\    } = null,
                         \\
                     );
                 }
@@ -711,7 +711,10 @@ const GenerationContext = struct {
                 const union_element_count = ctx.amountOfElementsInOneofUnion(m, @as(i32, @intCast(i)));
                 if (union_element_count > 1) {
                     const oneof_name = oneof.name.?.getSlice();
-                    try list.append(try std.fmt.allocPrint(allocator, "    .{s} = fd(null, .{{ .OneOf = std.meta.Child(std.meta.FieldType(@This(), .{s})) }}),\n", .{ oneof_name, oneof_name }));
+                    try list.append(try std.fmt.allocPrint(allocator,
+                        \\    .{s} = fd(null, .{{ .OneOf = std.meta.Child(@FieldType(@This(), "{s}")) }}),
+                        \\
+                    , .{ oneof_name, oneof_name }));
                 }
             }
 

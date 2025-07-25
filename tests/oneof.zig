@@ -15,7 +15,7 @@ test "decode empty oneof must be null" {
 }
 
 test "oneof encode/decode int" {
-    var demo = tests_oneof.OneofContainer.init();
+    var demo = tests_oneof.OneofContainer{};
 
     demo.some_oneof = .{ .a_number = 10 };
 
@@ -40,7 +40,7 @@ test "oneof encode/decode int" {
 }
 
 test "oneof encode/decode enum" {
-    var demo = tests_oneof.OneofContainer.init();
+    var demo = tests_oneof.OneofContainer{};
 
     demo.some_oneof = .{ .enum_value = .SOMETHING2 };
 
@@ -65,7 +65,7 @@ test "oneof encode/decode enum" {
 }
 
 test "oneof encode/decode string" {
-    var demo = tests_oneof.OneofContainer.init();
+    var demo = tests_oneof.OneofContainer{};
     demo.some_oneof = .{ .string_in_oneof = protobuf.ManagedString.static("123") };
 
     {
@@ -89,7 +89,7 @@ test "oneof encode/decode string" {
 }
 
 test "oneof encode/decode submessage" {
-    var demo = tests_oneof.OneofContainer.init();
+    var demo = tests_oneof.OneofContainer{};
     demo.some_oneof = .{ .message_in_oneof = .{ .value = 1, .str = protobuf.ManagedString.static("123") } };
 
     {

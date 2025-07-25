@@ -4,7 +4,7 @@ const std = @import("std");
 const testing = std.testing;
 
 test "FixedSizes" {
-    var demo = FixedSizes.init();
+    var demo = FixedSizes{};
     defer demo.deinit(testing.allocator);
     demo.sfixed64 = -1;
     demo.sfixed32 = -2;
@@ -27,7 +27,7 @@ test "FixedSizes" {
 }
 
 test "FixedSizes - encode/decode" {
-    var demo = FixedSizes.init();
+    var demo = FixedSizes{};
     defer demo.deinit(testing.allocator);
     demo.sfixed64 = -1123123141;
     demo.sfixed32 = -2131312;

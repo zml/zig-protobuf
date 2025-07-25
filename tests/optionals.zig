@@ -10,7 +10,7 @@ const unittest = @import("./generated/unittest.pb.zig");
 const longName = @import("./generated/whitespace-in-name.pb.zig");
 
 test "empty string in optional fields must be serialized over the wire" {
-    var t = jspb.TestClone.init();
+    var t = jspb.TestClone{};
     try testing.expect(t.str == null);
 
     // first encode with NULL

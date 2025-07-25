@@ -3,7 +3,7 @@ const tests = @import("./.generated/generated_in_ci.pb.zig");
 const testing = std.testing;
 
 test "Varints" {
-    var demo = tests.Varints.init();
+    var demo = tests.Varints{};
     defer demo.deinit(testing.allocator);
     demo.sint32 = -1;
     demo.sint64 = -1;
@@ -43,7 +43,7 @@ test "packed example from protobuf documentation repeated" {
 }
 
 test "Varints - encode/decode equivalence" {
-    var demo = tests.Varints.init();
+    var demo = tests.Varints{};
     defer demo.deinit(testing.allocator);
     demo.sint32 = -105;
     demo.sint64 = -11119487612;
@@ -60,7 +60,7 @@ test "Varints - encode/decode equivalence" {
 }
 
 test "EmptyLists" {
-    var demo = tests.EmptyLists.init();
+    var demo = tests.EmptyLists{};
     try demo.varuint32List.append(testing.allocator, 0x01);
     try demo.varuint32List.append(testing.allocator, 0x02);
     try demo.varuint32List.append(testing.allocator, 0x03);
@@ -79,7 +79,7 @@ test "EmptyLists" {
 }
 
 test "SubMessageList" {
-    var demo = tests.SubMessageList.init();
+    var demo = tests.SubMessageList{};
     try demo.subMessageList.append(testing.allocator, .{ .a = 1 });
     try demo.subMessageList.append(testing.allocator, .{ .a = 2 });
     try demo.subMessageList.append(testing.allocator, .{ .a = 3 });
@@ -97,7 +97,7 @@ test "SubMessageList" {
 }
 
 test "VarintListPacked - encode/decode" {
-    var demo = tests.VarintListPacked.init();
+    var demo = tests.VarintListPacked{};
     try demo.varuint32List.append(testing.allocator, 0x01);
     try demo.varuint32List.append(testing.allocator, 0x02);
     try demo.varuint32List.append(testing.allocator, 0x03);
@@ -156,7 +156,7 @@ test "basic encoding" {
 }
 
 test "EmptyMessage" {
-    var demo = tests.EmptyMessage.init();
+    var demo = tests.EmptyMessage{};
     defer demo.deinit(testing.allocator);
 
     const obtained = try demo.encode(testing.allocator);
@@ -180,7 +180,7 @@ test "integration varint packed - decode - multi-byte-varint" {
 }
 
 test "FixedSizesList" {
-    var demo = tests.FixedSizesList.init();
+    var demo = tests.FixedSizesList{};
     try demo.fixed32List.append(testing.allocator, 0x01);
     try demo.fixed32List.append(testing.allocator, 0x02);
     try demo.fixed32List.append(testing.allocator, 0x03);
@@ -200,7 +200,7 @@ test "FixedSizesList" {
 }
 
 test "VarintListNotPacked - not packed - encode/decode" {
-    var demo = tests.VarintListNotPacked.init();
+    var demo = tests.VarintListNotPacked{};
     try demo.varuint32List.append(testing.allocator, 0x01);
     try demo.varuint32List.append(testing.allocator, 0x02);
     try demo.varuint32List.append(testing.allocator, 0x03);
@@ -260,7 +260,7 @@ test "varint packed - decode" {
 }
 
 test "varint packed - encode, single element multi-byte-varint" {
-    var demo = tests.WithIntsPacked.init();
+    var demo = tests.WithIntsPacked{};
     try demo.list_of_data.append(testing.allocator, 0xA3);
     defer demo.deinit(testing.allocator);
 
@@ -279,7 +279,7 @@ test "varint packed - decode, single element multi-byte-varint" {
 }
 
 test "varint packed - encode decode, single element single-byte-varint" {
-    var demo = tests.WithIntsPacked.init();
+    var demo = tests.WithIntsPacked{};
     try demo.list_of_data.append(testing.allocator, 0x13);
     defer demo.deinit(testing.allocator);
 
@@ -294,7 +294,7 @@ test "varint packed - encode decode, single element single-byte-varint" {
 }
 
 test "varint packed - encode decode - single-byte-varint" {
-    var demo = tests.WithIntsPacked.init();
+    var demo = tests.WithIntsPacked{};
     try demo.list_of_data.append(testing.allocator, 0x11);
     try demo.list_of_data.append(testing.allocator, 0x12);
     defer demo.deinit(testing.allocator);
@@ -310,7 +310,7 @@ test "varint packed - encode decode - single-byte-varint" {
 }
 
 test "varint packed - encode - multi-byte-varint" {
-    var demo = tests.WithIntsPacked.init();
+    var demo = tests.WithIntsPacked{};
     try demo.list_of_data.append(testing.allocator, 0xA1);
     try demo.list_of_data.append(testing.allocator, 0xA2);
     defer demo.deinit(testing.allocator);
@@ -338,7 +338,7 @@ test "WithSubmessages" {
 }
 
 test "FixedInt - not packed" {
-    var demo = tests.WithIntsNotPacked.init();
+    var demo = tests.WithIntsNotPacked{};
     try demo.list_of_data.append(testing.allocator, 0x08);
     try demo.list_of_data.append(testing.allocator, 0x01);
     defer demo.deinit(testing.allocator);
